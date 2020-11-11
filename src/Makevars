@@ -1,0 +1,20 @@
+CXX_STD = CXX11
+PKG_LIBS = -pthread
+PKG_CPPFLAGS = -pthread -DSTRICT_R_HEADERS -I./doc2vec 
+
+SOURCES = doc2vec/Doc2Vec.cpp \
+			doc2vec/NN.cpp \
+			doc2vec/TaggedBrownCorpus.cpp \
+			doc2vec/TrainModelThread.cpp \
+			doc2vec/Vocab.cpp \
+			doc2vec/WMD.cpp \
+			rcpp_doc2vec.cpp \
+			RcppExports.cpp
+			
+OBJECTS = $(SOURCES:.cpp=.o)
+
+.PHONY: all 
+
+all: $(SHLIB); rm -f $(OBJECTS) 
+
+
