@@ -3,6 +3,7 @@
 #include "Doc2Vec.h"
 #include "Vocab.h"
 #include "NN.h"
+#include "TaggedBrownCorpus.h"
 
 // [[Rcpp::export]]
 Rcpp::List paragraph2vec_train(const char * trainFile, int size = 100, 
@@ -91,7 +92,6 @@ Rcpp::DataFrame paragraph2vec_nearest(SEXP ptr, std::string x, std::size_t top_n
   Rcpp::XPtr<Doc2Vec> model(ptr);
   knn_item_t knn_items[top_n];
   if(type == "doc2doc"){
-    // This seems to fail regarding term2??
     model->doc_knn_docs(x.c_str(), knn_items, top_n);
   }else if(type == "word2doc"){
     model->word_knn_docs(x.c_str(), knn_items, top_n);
@@ -131,16 +131,22 @@ Rcpp::List paragraph2vec_embedding(SEXP ptr, std::string type = "docs") {
   auto m_vocab_size = net->m_vocab_size;
   auto m_corpus_size = net->m_corpus_size;
   auto m_dsyn0 = net->m_dsyn0;
-  
+  //Rcpp::StringVector rn = paragraph2vec_dictionary(ptr, "docs");
+  // Rownames of the embedding matrix
   Rcpp::NumericMatrix embedding(m_corpus_size, m_dim);
+  Vocabulary* voc = model->dvocab();
+  Rcpp::CharacterVector rownames_(voc->m_vocab_size);
+  for (int i = 0; i < voc->m_vocab_size; i++){
+    std::string input(voc->m_vocab[i].word);
+    rownames_(i) = input;
+  }
+  rownames(embedding) = rownames_;
   std::fill(embedding.begin(), embedding.end(), Rcpp::NumericVector::get_na());
   for (int a = 0; a < m_corpus_size; a++){
     for (int b = 0; b < m_dim; b++) {
       embedding(a, b) = (float)(m_dsyn0[a * m_dim + b]);
     }
   }
-    
-  
   //net->m_syn0
   //net->m_dsyn0
   //fwrite(m_syn0, sizeof(real), m_vocab_size * m_dim, fout);
@@ -161,3 +167,43 @@ Rcpp::List paragraph2vec_embedding(SEXP ptr, std::string type = "docs") {
   
 
 
+// [[Rcpp::export]]
+Rcpp::NumericMatrix paragraph2vec_infer(SEXP ptr, Rcpp::List x) {
+    Rcpp::XPtr<Doc2Vec> model(ptr);
+    auto m_dim = model->dim();
+    Rcpp::NumericMatrix embedding(x.size(), model->dim());
+    Rcpp::CharacterVector rownames_ = x.names();
+    rownames(embedding) = rownames_;
+    std::fill(embedding.begin(), embedding.end(), Rcpp::NumericVector::get_na());
+    
+    real * infer_vector = NULL;
+    posix_memalign((void **)&infer_vector, 128, model->dim() * sizeof(real));
+    
+    TaggedDocument doc;
+    for(int i = 0; i < x.size(); ++i){
+      std::vector<std::string> line = Rcpp::as<std::vector<std::string>>(x[i]);
+      line.push_back("</s>");
+      doc.m_word_num = line.size();
+      for(int j = 0; j < doc.m_word_num; j++){
+        strcpy(doc.m_words[j], line[j].c_str());
+      }
+      model->infer_doc(&doc, infer_vector);
+      //doc2vec.sent_knn_docs(&doc, knn_items, K, infer_vector);
+      for (int b = 0; b < m_dim; b++) {
+        embedding(i, b) = (float)(infer_vector[b]);
+      }
+    }
+    
+    
+    
+    /*
+     
+    
+    buildDoc(&doc, "反求工程", "cad", "建模", "技术", "研究", "</s>");
+    doc2vec.sent_knn_docs(&doc, knn_items, K, infer_vector);
+    */
+    return embedding;
+}
+
+//real * infer_vector = NULL;
+//posix_memalign((void **)&infer_vector, 128, doc2vec.dim() * sizeof(real));

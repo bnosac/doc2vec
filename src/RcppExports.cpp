@@ -86,6 +86,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// paragraph2vec_infer
+Rcpp::NumericMatrix paragraph2vec_infer(SEXP ptr, Rcpp::List x);
+RcppExport SEXP _doc2vec_paragraph2vec_infer(SEXP ptrSEXP, SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(paragraph2vec_infer(ptr, x));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_doc2vec_paragraph2vec_train", (DL_FUNC) &_doc2vec_paragraph2vec_train, 11},
@@ -94,6 +106,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_doc2vec_paragraph2vec_dictionary", (DL_FUNC) &_doc2vec_paragraph2vec_dictionary, 2},
     {"_doc2vec_paragraph2vec_nearest", (DL_FUNC) &_doc2vec_paragraph2vec_nearest, 4},
     {"_doc2vec_paragraph2vec_embedding", (DL_FUNC) &_doc2vec_paragraph2vec_embedding, 2},
+    {"_doc2vec_paragraph2vec_infer", (DL_FUNC) &_doc2vec_paragraph2vec_infer, 2},
     {NULL, NULL, 0}
 };
 

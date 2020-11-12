@@ -25,3 +25,7 @@ paragraph2vec_embedding <- function(ptr, type = "docs") {
     .Call('_doc2vec_paragraph2vec_embedding', PACKAGE = 'doc2vec', ptr, type)
 }
 
+paragraph2vec_infer <- function(ptr, x) {
+    .Call('_doc2vec_paragraph2vec_infer', PACKAGE = 'doc2vec', ptr, x)
+}
+
