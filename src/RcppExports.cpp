@@ -75,14 +75,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // paragraph2vec_embedding
-Rcpp::List paragraph2vec_embedding(SEXP ptr, std::string type);
-RcppExport SEXP _doc2vec_paragraph2vec_embedding(SEXP ptrSEXP, SEXP typeSEXP) {
+Rcpp::NumericMatrix paragraph2vec_embedding(SEXP ptr, std::string type, bool normalize);
+RcppExport SEXP _doc2vec_paragraph2vec_embedding(SEXP ptrSEXP, SEXP typeSEXP, SEXP normalizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
     Rcpp::traits::input_parameter< std::string >::type type(typeSEXP);
-    rcpp_result_gen = Rcpp::wrap(paragraph2vec_embedding(ptr, type));
+    Rcpp::traits::input_parameter< bool >::type normalize(normalizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(paragraph2vec_embedding(ptr, type, normalize));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -105,7 +106,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_doc2vec_paragraph2vec_load_model", (DL_FUNC) &_doc2vec_paragraph2vec_load_model, 1},
     {"_doc2vec_paragraph2vec_dictionary", (DL_FUNC) &_doc2vec_paragraph2vec_dictionary, 2},
     {"_doc2vec_paragraph2vec_nearest", (DL_FUNC) &_doc2vec_paragraph2vec_nearest, 4},
-    {"_doc2vec_paragraph2vec_embedding", (DL_FUNC) &_doc2vec_paragraph2vec_embedding, 2},
+    {"_doc2vec_paragraph2vec_embedding", (DL_FUNC) &_doc2vec_paragraph2vec_embedding, 3},
     {"_doc2vec_paragraph2vec_infer", (DL_FUNC) &_doc2vec_paragraph2vec_infer, 2},
     {NULL, NULL, 0}
 };

@@ -21,8 +21,8 @@ paragraph2vec_nearest <- function(ptr, x, top_n = 10L, type = "doc2doc") {
     .Call('_doc2vec_paragraph2vec_nearest', PACKAGE = 'doc2vec', ptr, x, top_n, type)
 }
 
-paragraph2vec_embedding <- function(ptr, type = "docs") {
-    .Call('_doc2vec_paragraph2vec_embedding', PACKAGE = 'doc2vec', ptr, type)
+paragraph2vec_embedding <- function(ptr, type = "docs", normalize = TRUE) {
+    .Call('_doc2vec_paragraph2vec_embedding', PACKAGE = 'doc2vec', ptr, type, normalize)
 }
 
 paragraph2vec_infer <- function(ptr, x) {

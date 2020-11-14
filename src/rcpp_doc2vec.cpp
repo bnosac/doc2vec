@@ -123,18 +123,38 @@ Rcpp::DataFrame paragraph2vec_nearest(SEXP ptr, std::string x, std::size_t top_n
 
 
 // [[Rcpp::export]]
-Rcpp::List paragraph2vec_embedding(SEXP ptr, std::string type = "docs") {
+Rcpp::NumericMatrix paragraph2vec_embedding(SEXP ptr, std::string type = "docs", bool normalize = true) {
   Rcpp::XPtr<Doc2Vec> model(ptr);
 
   NN * net = model->nn();
-  auto m_dim = net->m_dim;
-  auto m_vocab_size = net->m_vocab_size;
-  auto m_corpus_size = net->m_corpus_size;
-  auto m_dsyn0 = net->m_dsyn0;
-  //Rcpp::StringVector rn = paragraph2vec_dictionary(ptr, "docs");
+  long long m_dim = net->m_dim;
+  long long m_vocab_size  = net->m_vocab_size;
+  long long m_corpus_size = net->m_corpus_size;
+  long long vocab_size;
+  Vocabulary* voc;
+  //auto m_dsyn0 = net->m_dsyn0;
+  real * m_dsyn0;
+  if(type == "docs"){
+    if(normalize){
+      m_dsyn0 = net->m_dsyn0norm;
+    }else{
+      m_dsyn0 = net->m_dsyn0;
+    }
+    vocab_size = m_corpus_size;
+    voc = model->dvocab();
+  }else if(type == "words"){
+    if(normalize){
+      m_dsyn0 = net->m_syn0norm;
+    }else{
+      m_dsyn0 = net->m_syn0;
+    }
+    vocab_size = m_vocab_size;
+    voc = model->wvocab();
+  }else{
+    Rcpp::stop("type should be either docs or words");
+  }
+  Rcpp::NumericMatrix embedding(vocab_size, m_dim);
   // Rownames of the embedding matrix
-  Rcpp::NumericMatrix embedding(m_corpus_size, m_dim);
-  Vocabulary* voc = model->dvocab();
   Rcpp::CharacterVector rownames_(voc->m_vocab_size);
   for (int i = 0; i < voc->m_vocab_size; i++){
     std::string input(voc->m_vocab[i].word);
@@ -142,7 +162,7 @@ Rcpp::List paragraph2vec_embedding(SEXP ptr, std::string type = "docs") {
   }
   rownames(embedding) = rownames_;
   std::fill(embedding.begin(), embedding.end(), Rcpp::NumericVector::get_na());
-  for (int a = 0; a < m_corpus_size; a++){
+  for (int a = 0; a < vocab_size; a++){
     for (int b = 0; b < m_dim; b++) {
       embedding(a, b) = (float)(m_dsyn0[a * m_dim + b]);
     }
@@ -154,15 +174,15 @@ Rcpp::List paragraph2vec_embedding(SEXP ptr, std::string type = "docs") {
   //if(m_hs) fwrite(m_syn1, sizeof(real), m_vocab_size * m_dim, fout);
   //if(m_negtive) fwrite(m_syn1neg, sizeof(real), m_vocab_size * m_dim, fout);
   //return;
-  Rcpp::List out = Rcpp::List::create(
-    Rcpp::Named("embedding") = embedding,
-    Rcpp::Named("m_dim") = m_dim,
-    Rcpp::Named("m_vocab_size") = m_vocab_size,
-    Rcpp::Named("m_corpus_size") = m_corpus_size,
-    Rcpp::Named("m_hs") = net->m_hs,
-    Rcpp::Named("m_negtive") = net->m_negtive
-  );
-  return out;
+  // Rcpp::List out = Rcpp::List::create(
+  //   Rcpp::Named("embedding") = embedding,
+  //   Rcpp::Named("m_dim") = m_dim,
+  //   Rcpp::Named("m_vocab_size") = m_vocab_size,
+  //   Rcpp::Named("m_corpus_size") = m_corpus_size,
+  //   Rcpp::Named("m_hs") = net->m_hs,
+  //   Rcpp::Named("m_negtive") = net->m_negtive
+  // );
+  return embedding;
 }
   
 
@@ -193,12 +213,7 @@ Rcpp::NumericMatrix paragraph2vec_infer(SEXP ptr, Rcpp::List x) {
         embedding(i, b) = (float)(infer_vector[b]);
       }
     }
-    
-    
-    
     /*
-     
-    
     buildDoc(&doc, "反求工程", "cad", "建模", "技术", "研究", "</s>");
     doc2vec.sent_knn_docs(&doc, knn_items, K, infer_vector);
     */
