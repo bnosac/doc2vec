@@ -25,10 +25,13 @@ typedef float real;
 
 
 
-#if defined(_WIN32) || defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
 #include <malloc.h>
+//https://stackoverflow.com/questions/33696092/whats-the-correct-replacement-for-posix-memalign-in-windows
+#define posix_memalign(p, a, s) (((*(p)) = _aligned_malloc((s), (a))), *(p) ?0 :errno)
 #else
 #include <stdlib.h>
+/*
 static inline void *_aligned_malloc(size_t size, size_t alignment)
 {
 #if defined(__sun) || defined(sun)
@@ -43,6 +46,7 @@ static inline void _aligned_free(void *p)
 {
   free(p);
 }
+ */
 #endif
 
 #endif
