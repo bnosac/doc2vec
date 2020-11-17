@@ -22,7 +22,7 @@ Rcpp::List paragraph2vec_train(const char * trainFile, int size = 100,
       Rcpp::Named("file") = trainFile,
       Rcpp::Named("n") = voc_words->m_train_words,
       Rcpp::Named("n_vocabulary") = voc_words->m_vocab_size,
-      Rcpp::Named("docs") = voc_docs->m_vocab_size
+      Rcpp::Named("n_docs") = voc_docs->m_vocab_size
     ),
     Rcpp::Named("control") = Rcpp::List::create(
       Rcpp::Named("min_count") = min_count,
