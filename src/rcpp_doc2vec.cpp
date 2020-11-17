@@ -4,7 +4,7 @@
 #include "Vocab.h"
 #include "NN.h"
 #include "TaggedBrownCorpus.h"
-
+#include "common_define.h"
 // [[Rcpp::export]]
 Rcpp::List paragraph2vec_train(const char * trainFile, int size = 100, 
                                int cbow = 1, int hs = 0, int negative = 5, int iterations = 5, 
