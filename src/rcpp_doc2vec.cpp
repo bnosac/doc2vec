@@ -22,7 +22,7 @@ Rcpp::List paragraph2vec_train(const char * trainFile, int size = 100,
       Rcpp::Named("file") = trainFile,
       Rcpp::Named("n") = voc_words->m_train_words,
       Rcpp::Named("n_vocabulary") = voc_words->m_vocab_size,
-      Rcpp::Named("n_docs") = voc_docs->m_vocab_size
+      Rcpp::Named("n_docs") = voc_docs->m_vocab_size - 1
     ),
     Rcpp::Named("control") = Rcpp::List::create(
       Rcpp::Named("min_count") = min_count,
@@ -71,15 +71,18 @@ Rcpp::List paragraph2vec_load_model(std::string file) {
 std::vector<std::string> paragraph2vec_dictionary(SEXP ptr, std::string type = "docs") {
   Rcpp::XPtr<Doc2Vec> model(ptr);
   Vocabulary* voc;
+  long long voc_size;
   if(type == "docs"){
     voc = model->dvocab();
+    voc_size = voc->m_vocab_size - 1;
   }else if(type == "words"){
     voc = model->wvocab();
+    voc_size = voc->m_vocab_size;
   }else{
     Rcpp::stop("type should be either doc or words");
   }
   std::vector<std::string> keys;
-  for (int i = 0; i < voc->m_vocab_size; i++){
+  for (int i = 0; i < voc_size; i++){
     std::string input(voc->m_vocab[i].word);
     keys.push_back(input);
   }
@@ -141,6 +144,7 @@ Rcpp::NumericMatrix paragraph2vec_embedding(SEXP ptr, std::string type = "docs",
       m_dsyn0 = net->m_dsyn0;
     }
     vocab_size = m_corpus_size;
+    vocab_size = vocab_size - 1;
     voc = model->dvocab();
   }else if(type == "words"){
     if(normalize){
@@ -155,8 +159,8 @@ Rcpp::NumericMatrix paragraph2vec_embedding(SEXP ptr, std::string type = "docs",
   }
   Rcpp::NumericMatrix embedding(vocab_size, m_dim);
   // Rownames of the embedding matrix
-  Rcpp::CharacterVector rownames_(voc->m_vocab_size);
-  for (int i = 0; i < voc->m_vocab_size; i++){
+  Rcpp::CharacterVector rownames_(vocab_size);
+  for (int i = 0; i < vocab_size; i++){
     std::string input(voc->m_vocab[i].word);
     rownames_(i) = input;
   }

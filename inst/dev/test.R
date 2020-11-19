@@ -1,14 +1,17 @@
 library(tokenizers.bpe)
 library(doc2vec)
 data(belgium_parliament)
-str(belgium_parliament)
-belgium_parliament <- head(belgium_parliament, 2000)
 belgium_parliament$id   <- seq_len(nrow(belgium_parliament))
 belgium_parliament$text <- tolower(belgium_parliament$text)
 belgium_parliament$text <- gsub("[^[:alpha:]]", " ", belgium_parliament$text)
 belgium_parliament$text <- gsub("[[:space:]]+", " ", belgium_parliament$text)
 belgium_parliament$text <- trimws(belgium_parliament$text)
 belgium_parliament <- subset(belgium_parliament, nchar(text) > 0)
+belgium_parliament$len <- sapply(strsplit(belgium_parliament$text, " "), length)
+belgium_parliament <- subset(belgium_parliament, len < 1000)
+# belgium_parliament$text <- sapply(belgium_parliament$text, FUN=function(x){
+#   paste(sample(c(letters[1:6], " "), size = nchar(x), replace = TRUE), collapse = "")
+# })
 f <- tempfile(pattern = "traindata_doc2vec_", fileext = ".txt")
 docs <- sprintf("_*%06d %s", belgium_parliament$id, belgium_parliament$text)
 docs <- sprintf("doc_%06d %s", belgium_parliament$id, belgium_parliament$text)
@@ -46,7 +49,7 @@ z
 
 emb <- doc2vec:::paragraph2vec_embedding(model$model, type = "words", normalize = TRUE)
 emb["geld", ]
-ruimtehol::embedding_similarity(emb["geld", ], emb, top_n = 10, type = "dot")
+ruimtehol::embedding_similarity(emb["geld", , drop = FALSE], emb, top_n = 10, type = "dot")
 emb <- doc2vec:::paragraph2vec_embedding(model$model, type = "docs")
 emb["doc_000001", ]
 ruimtehol::embedding_similarity(emb["doc_000001", ], emb, top_n = 10, type = "dot")
