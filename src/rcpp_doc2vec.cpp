@@ -201,8 +201,9 @@ Rcpp::NumericMatrix paragraph2vec_infer(SEXP ptr, Rcpp::List x) {
     std::fill(embedding.begin(), embedding.end(), Rcpp::NumericVector::get_na());
     
     real * infer_vector = NULL;
-    int errnr = posix_memalign((void **)&infer_vector, 128, model->dim() * sizeof(real));
-    if(errnr != 0) Rcpp::stop("posix_memalign failed");
+    //int errnr = posix_memalign((void **)&infer_vector, 128, model->dim() * sizeof(real));
+    infer_vector = (float *)_aligned_malloc(model->dim() * sizeof(real), 128);
+    //if(errnr != 0) Rcpp::stop("posix_memalign failed");
     
     TaggedDocument doc;
     for(int i = 0; i < x.size(); ++i){
@@ -218,6 +219,7 @@ Rcpp::NumericMatrix paragraph2vec_infer(SEXP ptr, Rcpp::List x) {
         embedding(i, b) = (float)(infer_vector[b]);
       }
     }
+    _aligned_free(infer_vector);
     /*
     buildDoc(&doc, "反求工程", "cad", "建模", "技术", "研究", "</s>");
     doc2vec.sent_knn_docs(&doc, knn_items, K, infer_vector);

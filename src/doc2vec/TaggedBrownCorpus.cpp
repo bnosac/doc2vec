@@ -151,15 +151,17 @@ void UnWeightedDocument::load(FILE * fin)
 WeightedDocument::WeightedDocument(Doc2Vec * doc2vec, TaggedDocument * doc):
   UnWeightedDocument(doc2vec, doc), m_words_wei(NULL)
 {
-  int errnr;
+  //int errnr;
   int a;
   long long word_idx;
   char * word;
   real sim, * doc_vector = NULL, * infer_vector = NULL;
   real sum = 0;
   std::map<long long, real> scores;
-  errnr = posix_memalign((void **)&doc_vector, 128, doc2vec->m_nn->m_dim * sizeof(real));
-  errnr = posix_memalign((void **)&infer_vector, 128, doc2vec->m_nn->m_dim * sizeof(real));
+  //errnr = posix_memalign((void **)&doc_vector, 128, doc2vec->m_nn->m_dim * sizeof(real));
+  doc_vector = (float *)_aligned_malloc(doc2vec->m_nn->m_dim * sizeof(real), 128);
+  //errnr = posix_memalign((void **)&infer_vector, 128, doc2vec->m_nn->m_dim * sizeof(real));
+  infer_vector = (float *)_aligned_malloc(doc2vec->m_nn->m_dim * sizeof(real), 128);
   doc2vec->infer_doc(doc, doc_vector);
   for(a = 0; a < doc->m_word_num; a++)
   {
@@ -171,14 +173,14 @@ WeightedDocument::WeightedDocument(Doc2Vec * doc2vec, TaggedDocument * doc):
     sim = doc2vec->similarity(doc_vector, infer_vector);
     scores[word_idx] = pow(1.0 - sim, 1.5);
   }
-  free(doc_vector);
-  free(infer_vector);
+  _aligned_free(doc_vector);
+  _aligned_free(infer_vector);
   if(m_word_num <= 0) return;
   m_words_wei = new real[m_word_num];
   for(a = 0; a < m_word_num; a++) m_words_wei[a] = scores[m_words_idx[a]];
   for(a = 0; a < m_word_num; a++) sum +=  m_words_wei[a];
   for(a = 0; a < m_word_num; a++) m_words_wei[a] /= sum;
-  if(errnr != 0) Rcpp::stop("posix_memalign failed");
+  //if(errnr != 0) Rcpp::stop("posix_memalign failed");
 }
 
 WeightedDocument::~WeightedDocument()

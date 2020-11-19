@@ -29,8 +29,26 @@ typedef float real;
 #include <malloc.h>
 //https://stackoverflow.com/questions/33696092/whats-the-correct-replacement-for-posix-memalign-in-windows
 #define posix_memalign(p, a, s) (((*(p)) = _aligned_malloc((s), (a))), *(p) ?0 :errno)
-#else
-#include <stdlib.h>
+// int posix_memalign(void **ptr, size_t align, size_t size)
+// {
+//   int saved_errno = errno;
+//   void *p = _aligned_malloc(size, align);
+//   if (p == NULL)
+//   {
+//     errno = saved_errno;
+//     return ENOMEM;
+//   }
+//   
+//   *ptr = p;
+//   return 0;
+// }
+// #else
+// #include <stdlib.h>
+
+// #if defined(__sun) || defined(sun)
+// #define posix_memalign(p, a, s) (((*(p)) = memalign((a), (s))), *(p) ?0)
+// #endif
+
 /*
 static inline void *_aligned_malloc(size_t size, size_t alignment)
 {
@@ -49,4 +67,33 @@ static inline void _aligned_free(void *p)
  */
 #endif
 
+#endif
+
+
+
+
+
+
+
+
+
+
+#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
+#include <malloc.h>
+#else
+#include <stdlib.h>
+static inline void *_aligned_malloc(size_t size, size_t alignment)
+{
+#if defined(__sun) || defined(sun)
+  return memalign(alignment, size);
+#else
+  void *p;
+  int ret = posix_memalign(&p, alignment, size);
+  return (ret == 0) ? p : 0;
+#endif
+}
+static inline void _aligned_free(void *p)
+{
+  free(p);
+}
 #endif

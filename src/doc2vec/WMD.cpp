@@ -10,12 +10,14 @@ WMD::WMD(Doc2Vec * doc2vec): m_corpus(NULL), m_doc2vec(doc2vec),
   m_dis_vector(NULL), m_infer_vector(NULL),
   m_doc2vec_knns(NULL)
 {
-  int errnr;
+  //int errnr;
   m_corpus = new UnWeightedDocument*[m_doc2vec->m_nn->m_corpus_size];
   for(long long a = 0; a < m_doc2vec->m_nn->m_corpus_size; a++) m_corpus[a] = NULL;
-  errnr = posix_memalign((void **)&m_dis_vector, 128, MAX_SENTENCE_LENGTH * sizeof(real));
-  errnr = posix_memalign((void **)&m_infer_vector, 128, m_doc2vec->m_nn->m_dim * sizeof(real));
-  if(errnr != 0) Rcpp::stop("posix_memalign failed");
+  //errnr = posix_memalign((void **)&m_dis_vector, 128, MAX_SENTENCE_LENGTH * sizeof(real));
+  m_dis_vector = (float *)_aligned_malloc(MAX_SENTENCE_LENGTH * sizeof(real), 128);
+  //errnr = posix_memalign((void **)&m_infer_vector, 128, m_doc2vec->m_nn->m_dim * sizeof(real));
+  m_infer_vector = (float *)_aligned_malloc(m_doc2vec->m_nn->m_dim * sizeof(real), 128);
+  //if(errnr != 0) Rcpp::stop("posix_memalign failed");
   m_doc2vec_knns = new knn_item_t[MAX_DOC2VEC_KNN];
 }
 
@@ -24,8 +26,8 @@ WMD::~WMD()
   long long a;
   if(m_corpus) for(a = 0; a < m_doc2vec->m_nn->m_corpus_size; a++) if(m_corpus[a]) delete m_corpus[a];
   if(m_corpus) delete [] m_corpus;
-  if(m_dis_vector) free(m_dis_vector);
-  if(m_infer_vector) free(m_infer_vector);
+  if(m_dis_vector) _aligned_free(m_dis_vector);
+  if(m_infer_vector) _aligned_free(m_infer_vector);
   if(m_doc2vec_knns) delete [] m_doc2vec_knns;
 }
 
