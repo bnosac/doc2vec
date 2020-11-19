@@ -86,7 +86,7 @@ void NN::load(FILE * fin)
     if (m_syn1neg == NULL) {Rcpp::stop("Memory allocation failed\n"); }
     errnr = fread(m_syn1neg, sizeof(real), m_vocab_size * m_dim, fin);
   }
-  if(errnr > 0) Rcpp::stop("fread failed");
+  if(errnr <= 0) Rcpp::stop("fread failed");
 }
 
 void NN::norm()
@@ -114,5 +114,5 @@ void NN::norm()
     len = sqrt(len);
     for(b = 0; b < m_dim; b++) m_dsyn0norm[b + a * m_dim] = m_dsyn0[b + a * m_dim] / len;
   }
-  if(errnr > 0) Rcpp::stop("fread failed");
+  if(errnr != 0) Rcpp::stop("posix_memalign failed");
 }

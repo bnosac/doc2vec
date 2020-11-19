@@ -296,7 +296,7 @@ void Doc2Vec::load(FILE * fin)
   errnr = fread(&m_start_alpha, sizeof(real), 1, fin);
   errnr = fread(&m_sample, sizeof(real), 1, fin);
   errnr = fread(&m_iter, sizeof(int), 1, fin);
-  //if(errnr > 0) Rcpp::stop("fread failed");
+  if(errnr <= 0) Rcpp::stop("fread failed");
   initNegTable();
   m_nn->norm();
   m_wmd = new WMD(this);
