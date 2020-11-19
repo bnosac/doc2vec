@@ -60,38 +60,41 @@ void NN::save(FILE * fout)
 
 void NN::load(FILE * fin)
 {
-  fread(&m_hs, sizeof(int), 1, fin);
-  fread(&m_negtive, sizeof(int), 1, fin);
-  fread(&m_vocab_size, sizeof(long long), 1, fin);
-  fread(&m_corpus_size, sizeof(long long), 1, fin);
-  fread(&m_dim, sizeof(long long), 1, fin);
+  int errnr;
+  errnr = fread(&m_hs, sizeof(int), 1, fin);
+  errnr = fread(&m_negtive, sizeof(int), 1, fin);
+  errnr = fread(&m_vocab_size, sizeof(long long), 1, fin);
+  errnr = fread(&m_corpus_size, sizeof(long long), 1, fin);
+  errnr = fread(&m_dim, sizeof(long long), 1, fin);
 
-  posix_memalign((void **)&m_syn0, 128, (long long)m_vocab_size * m_dim * sizeof(real));
+  errnr = posix_memalign((void **)&m_syn0, 128, (long long)m_vocab_size * m_dim * sizeof(real));
   if (m_syn0 == NULL) {Rcpp::stop("Memory allocation failed\n"); }
-  fread(m_syn0, sizeof(real), m_vocab_size * m_dim, fin);
+  errnr = fread(m_syn0, sizeof(real), m_vocab_size * m_dim, fin);
 
-  posix_memalign((void **)&m_dsyn0, 128, (long long)m_corpus_size * m_dim * sizeof(real));
+  errnr = posix_memalign((void **)&m_dsyn0, 128, (long long)m_corpus_size * m_dim * sizeof(real));
   if (m_dsyn0 == NULL) {Rcpp::stop("Memory allocation failed\n"); }
-  fread(m_dsyn0, sizeof(real), m_corpus_size * m_dim, fin);
+  errnr = fread(m_dsyn0, sizeof(real), m_corpus_size * m_dim, fin);
 
   if(m_hs) {
-    posix_memalign((void **)&m_syn1, 128, (long long)m_vocab_size * m_dim * sizeof(real));
+    errnr = posix_memalign((void **)&m_syn1, 128, (long long)m_vocab_size * m_dim * sizeof(real));
     if (m_syn1 == NULL) {Rcpp::stop("Memory allocation failed\n"); }
-    fread(m_syn1, sizeof(real), m_vocab_size * m_dim, fin);
+    errnr = fread(m_syn1, sizeof(real), m_vocab_size * m_dim, fin);
   }
 
   if(m_negtive) {
-    posix_memalign((void **)&m_syn1neg, 128, (long long)m_vocab_size * m_dim * sizeof(real));
+    errnr = posix_memalign((void **)&m_syn1neg, 128, (long long)m_vocab_size * m_dim * sizeof(real));
     if (m_syn1neg == NULL) {Rcpp::stop("Memory allocation failed\n"); }
-    fread(m_syn1neg, sizeof(real), m_vocab_size * m_dim, fin);
+    errnr = fread(m_syn1neg, sizeof(real), m_vocab_size * m_dim, fin);
   }
+  if(errnr > 0) Rcpp::stop("fread failed");
 }
 
 void NN::norm()
 {
-  posix_memalign((void **)&m_syn0norm, 128, (long long)m_vocab_size * m_dim * sizeof(real));
+  int errnr;
+  errnr = posix_memalign((void **)&m_syn0norm, 128, (long long)m_vocab_size * m_dim * sizeof(real));
   if (m_syn0norm == NULL) {Rcpp::stop("Memory allocation failed\n"); }
-  posix_memalign((void **)&m_dsyn0norm, 128, (long long)m_corpus_size * m_dim * sizeof(real));
+  errnr = posix_memalign((void **)&m_dsyn0norm, 128, (long long)m_corpus_size * m_dim * sizeof(real));
   if (m_dsyn0norm == NULL) {Rcpp::stop("Memory allocation failed\n"); }
   long long a, b;
   real len;
@@ -111,4 +114,5 @@ void NN::norm()
     len = sqrt(len);
     for(b = 0; b < m_dim; b++) m_dsyn0norm[b + a * m_dim] = m_dsyn0[b + a * m_dim] / len;
   }
+  if(errnr > 0) Rcpp::stop("fread failed");
 }

@@ -1,3 +1,4 @@
+#include <Rcpp.h>
 #include "Doc2Vec.h"
 #include "NN.h"
 #include "Vocab.h"
@@ -281,19 +282,21 @@ void Doc2Vec::save(FILE * fout)
 
 void Doc2Vec::load(FILE * fin)
 {
+  int errnr;
   m_word_vocab = new Vocabulary();
   m_word_vocab->load(fin);
   m_doc_vocab = new Vocabulary();
   m_doc_vocab->load(fin);
   m_nn = new NN();
   m_nn->load(fin);
-  fread(&m_cbow, sizeof(int), 1, fin);
-  fread(&m_hs, sizeof(int), 1, fin);
-  fread(&m_negtive, sizeof(int), 1, fin);
-  fread(&m_window, sizeof(int), 1, fin);
-  fread(&m_start_alpha, sizeof(real), 1, fin);
-  fread(&m_sample, sizeof(real), 1, fin);
-  fread(&m_iter, sizeof(int), 1, fin);
+  errnr = fread(&m_cbow, sizeof(int), 1, fin);
+  errnr = fread(&m_hs, sizeof(int), 1, fin);
+  errnr = fread(&m_negtive, sizeof(int), 1, fin);
+  errnr = fread(&m_window, sizeof(int), 1, fin);
+  errnr = fread(&m_start_alpha, sizeof(real), 1, fin);
+  errnr = fread(&m_sample, sizeof(real), 1, fin);
+  errnr = fread(&m_iter, sizeof(int), 1, fin);
+  if(errnr > 0) Rcpp::stop("fread failed");
   initNegTable();
   m_nn->norm();
   m_wmd = new WMD(this);

@@ -1,3 +1,4 @@
+#include <Rcpp.h>
 #include "Vocab.h"
 #include "TaggedBrownCorpus.h"
 
@@ -255,32 +256,34 @@ void Vocabulary::save(FILE * fout)
 
 void Vocabulary::load(FILE * fin)
 {
+  int errnr;
   long long a;
   int wordlen;
-  fread(&m_vocab_size, sizeof(long long), 1, fin);
-  fread(&m_train_words, sizeof(long long), 1, fin);
-  fread(&m_vocab_capacity, sizeof(long long), 1, fin);
-  fread(&m_min_reduce, sizeof(int), 1, fin);
-  fread(&m_min_count, sizeof(int), 1, fin);
-  fread(&m_doctag, sizeof(bool), 1, fin);
+  errnr = fread(&m_vocab_size, sizeof(long long), 1, fin);
+  errnr = fread(&m_train_words, sizeof(long long), 1, fin);
+  errnr = fread(&m_vocab_capacity, sizeof(long long), 1, fin);
+  errnr = fread(&m_min_reduce, sizeof(int), 1, fin);
+  errnr = fread(&m_min_count, sizeof(int), 1, fin);
+  errnr = fread(&m_doctag, sizeof(bool), 1, fin);
   m_vocab = (struct vocab_word_t *)calloc(m_vocab_capacity, sizeof(struct vocab_word_t));
   for(a = 0; a < m_vocab_size; a++)
   {
-    fread(&wordlen, sizeof(int), 1, fin);
+    errnr = fread(&wordlen, sizeof(int), 1, fin);
     m_vocab[a].word = (char *)calloc(wordlen + 1, sizeof(char));
-    fread(m_vocab[a].word, sizeof(char), wordlen, fin);
-    fread(&(m_vocab[a].cn), sizeof(long long), 1, fin);
+    errnr = fread(m_vocab[a].word, sizeof(char), wordlen, fin);
+    errnr = fread(&(m_vocab[a].cn), sizeof(long long), 1, fin);
     if(!m_doctag)
     {
-      fread(&(m_vocab[a].codelen), sizeof(char), 1, fin);
+      errnr = fread(&(m_vocab[a].codelen), sizeof(char), 1, fin);
       m_vocab[a].point = (int *)calloc(m_vocab[a].codelen, sizeof(int));
-      fread(m_vocab[a].point, sizeof(int), m_vocab[a].codelen, fin);
+      errnr = fread(m_vocab[a].point, sizeof(int), m_vocab[a].codelen, fin);
       m_vocab[a].code = (char *)calloc(m_vocab[a].codelen, sizeof(char));
-      fread(m_vocab[a].code, sizeof(char), m_vocab[a].codelen, fin);
+      errnr = fread(m_vocab[a].code, sizeof(char), m_vocab[a].codelen, fin);
     }
   }
   m_vocab_hash = (int *)calloc(vocab_hash_size, sizeof(int));
-  fread(m_vocab_hash, sizeof(int), vocab_hash_size, fin);
+  errnr = fread(m_vocab_hash, sizeof(int), vocab_hash_size, fin);
+  if(errnr > 0) Rcpp::stop("fread failed");
 }
 
 int vocabCompare(const void *a, const void *b)

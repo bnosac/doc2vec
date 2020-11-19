@@ -1,5 +1,5 @@
-#include "TaggedBrownCorpus.h"
 #include <Rcpp.h>
+#include "TaggedBrownCorpus.h"
 #include "Vocab.h"
 #include "NN.h"
 #include "Doc2Vec.h"
@@ -136,27 +136,30 @@ void UnWeightedDocument::save(FILE * fout)
 }
 void UnWeightedDocument::load(FILE * fin)
 {
-  fread(&m_word_num, sizeof(int), 1, fin);
+  int errnr;
+  errnr = fread(&m_word_num, sizeof(int), 1, fin);
   if(m_word_num > 0)
   {
     m_words_idx = new long long[m_word_num];
-    fread(m_words_idx, sizeof(long long), m_word_num, fin);
+    errnr = fread(m_words_idx, sizeof(long long), m_word_num, fin);
   }
   else m_words_idx = NULL;
+  if(errnr > 0) Rcpp::stop("fread failed");
 }
 
 // //////////////WeightedDocument/////////////////////////////
 WeightedDocument::WeightedDocument(Doc2Vec * doc2vec, TaggedDocument * doc):
   UnWeightedDocument(doc2vec, doc), m_words_wei(NULL)
 {
+  int errnr;
   int a;
   long long word_idx;
   char * word;
   real sim, * doc_vector = NULL, * infer_vector = NULL;
   real sum = 0;
   std::map<long long, real> scores;
-  posix_memalign((void **)&doc_vector, 128, doc2vec->m_nn->m_dim * sizeof(real));
-  posix_memalign((void **)&infer_vector, 128, doc2vec->m_nn->m_dim * sizeof(real));
+  errnr = posix_memalign((void **)&doc_vector, 128, doc2vec->m_nn->m_dim * sizeof(real));
+  errnr = posix_memalign((void **)&infer_vector, 128, doc2vec->m_nn->m_dim * sizeof(real));
   doc2vec->infer_doc(doc, doc_vector);
   for(a = 0; a < doc->m_word_num; a++)
   {
@@ -175,6 +178,7 @@ WeightedDocument::WeightedDocument(Doc2Vec * doc2vec, TaggedDocument * doc):
   for(a = 0; a < m_word_num; a++) m_words_wei[a] = scores[m_words_idx[a]];
   for(a = 0; a < m_word_num; a++) sum +=  m_words_wei[a];
   for(a = 0; a < m_word_num; a++) m_words_wei[a] /= sum;
+  if(errnr > 0) Rcpp::stop("posix_memalign failed");
 }
 
 WeightedDocument::~WeightedDocument()
