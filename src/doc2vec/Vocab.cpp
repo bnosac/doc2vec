@@ -152,7 +152,7 @@ void Vocabulary::reduceVocab()
     while (m_vocab_hash[hash] != -1) hash = (hash + 1) % vocab_hash_size;
     m_vocab_hash[hash] = a;
   }
-  fflush(stdout);
+  //fflush(stdout);
   m_min_reduce++;
 }
 
