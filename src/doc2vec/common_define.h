@@ -67,17 +67,6 @@ static inline void _aligned_free(void *p)
  */
 #endif
 
-#endif
-
-
-
-
-
-
-
-
-
-
 #if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
 #include <malloc.h>
 #else
@@ -97,3 +86,16 @@ static inline void _aligned_free(void *p)
   free(p);
 }
 #endif
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
