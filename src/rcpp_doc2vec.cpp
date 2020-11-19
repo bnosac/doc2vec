@@ -201,8 +201,8 @@ Rcpp::NumericMatrix paragraph2vec_infer(SEXP ptr, Rcpp::List x) {
     std::fill(embedding.begin(), embedding.end(), Rcpp::NumericVector::get_na());
     
     real * infer_vector = NULL;
-    int errno = posix_memalign((void **)&infer_vector, 128, model->dim() * sizeof(real));
-    if(errno > 0) Rcpp::stop("posix_memalign failed");
+    int errnr = posix_memalign((void **)&infer_vector, 128, model->dim() * sizeof(real));
+    if(errnr > 0) Rcpp::stop("posix_memalign failed");
     
     TaggedDocument doc;
     for(int i = 0; i < x.size(); ++i){
