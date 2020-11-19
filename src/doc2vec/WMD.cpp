@@ -15,7 +15,7 @@ WMD::WMD(Doc2Vec * doc2vec): m_corpus(NULL), m_doc2vec(doc2vec),
   for(long long a = 0; a < m_doc2vec->m_nn->m_corpus_size; a++) m_corpus[a] = NULL;
   errnr = posix_memalign((void **)&m_dis_vector, 128, MAX_SENTENCE_LENGTH * sizeof(real));
   errnr = posix_memalign((void **)&m_infer_vector, 128, m_doc2vec->m_nn->m_dim * sizeof(real));
-  if(errnr > 0) Rcpp::stop("posix_memalign failed");
+  //if(errnr > 0) Rcpp::stop("posix_memalign failed");
   m_doc2vec_knns = new knn_item_t[MAX_DOC2VEC_KNN];
 }
 

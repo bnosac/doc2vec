@@ -283,7 +283,7 @@ void Vocabulary::load(FILE * fin)
   }
   m_vocab_hash = (int *)calloc(vocab_hash_size, sizeof(int));
   errnr = fread(m_vocab_hash, sizeof(int), vocab_hash_size, fin);
-  if(errnr > 0) Rcpp::stop("fread failed");
+  //if(errnr > 0) Rcpp::stop("fread failed");
 }
 
 int vocabCompare(const void *a, const void *b)

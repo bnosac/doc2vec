@@ -144,7 +144,7 @@ void UnWeightedDocument::load(FILE * fin)
     errnr = fread(m_words_idx, sizeof(long long), m_word_num, fin);
   }
   else m_words_idx = NULL;
-  if(errnr > 0) Rcpp::stop("fread failed");
+  //if(errnr > 0) Rcpp::stop("fread failed");
 }
 
 // //////////////WeightedDocument/////////////////////////////
@@ -178,7 +178,7 @@ WeightedDocument::WeightedDocument(Doc2Vec * doc2vec, TaggedDocument * doc):
   for(a = 0; a < m_word_num; a++) m_words_wei[a] = scores[m_words_idx[a]];
   for(a = 0; a < m_word_num; a++) sum +=  m_words_wei[a];
   for(a = 0; a < m_word_num; a++) m_words_wei[a] /= sum;
-  if(errnr > 0) Rcpp::stop("posix_memalign failed");
+  //if(errnr > 0) Rcpp::stop("posix_memalign failed");
 }
 
 WeightedDocument::~WeightedDocument()
