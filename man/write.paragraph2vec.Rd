@@ -12,7 +12,7 @@ write.paragraph2vec(x, file)
 \item{file}{the path to the file where to store the model}
 }
 \value{
-a logical indicating if the save process succeeded
+invisibly a logical if the resulting file exists and has been written on your hard disk
 }
 \description{
 Save a paragraph2vec model as a binary file to disk

@@ -19,16 +19,17 @@
 \item{object}{a paragraph2vec model as returned by \code{\link{paragraph2vec}} or \code{\link{read.paragraph2vec}}}
 
 \item{newdata}{either a character vector of words, a character vector of doc_id's or a list of sentences
-where the list elements are words part of the model dictionary. See the examples.}
+where the list elements are words part of the model dictionary. What needs to be provided depends on the argument you provide in \code{which}. 
+See the examples.}
 
-\item{type}{either 'embedding' or 'nearest' to get the embeddings or to find the closest similar text items. 
+\item{type}{either 'embedding' or 'nearest' to get the embeddings or to find the closest text items. 
 Defaults to 'nearest'.}
 
 \item{which}{either one of 'docs', 'words', 'doc2doc', 'word2doc', 'word2word' or 'sent2doc' where
 \itemize{
 \item{'docs' or 'words' can be chosen if \code{type} is set to 'embedding' to indicate that \code{newdata} contains either doc_id's or words}
 \item{'doc2doc', 'word2doc', 'word2word', 'sent2doc' can be chosen if \code{type} is set to 'nearest' indicating to extract respectively
-the closest document to a document, the closest document to a word, the closest word to a word or the closest document to sentences.}
+the closest document to a document (doc2doc), the closest document to a word (word2doc), the closest word to a word (word2word) or the closest document to sentences (sent2doc).}
 }}
 
 \item{top_n}{show only the top n nearest neighbours. Defaults to 10. Only used for \code{type} 'nearest'.}
@@ -40,19 +41,20 @@ the closest document to a document, the closest document to a word, the closest 
 \item{...}{not used}
 }
 \value{
-depending on the type, you get a different result back:
+depending on the type, you get a different output:
 \itemize{
-\item{for type nearest: a list of data.frames with columns term1, term2, similarity and rank indicating the elements which are closest to the provided \code{newdata}}
+\item{for type nearest: returns a list of data.frames with columns term1, term2, similarity and rank indicating the elements which are closest to the provided \code{newdata}}
 \item{for type embedding: a matrix of embeddings of the words/documents or sentences provided in \code{newdata}, 
 rownames are either taken from the words/documents or list names of the sentences. The matrix has always the
 same number of rows as the length of \code{newdata}, possibly with NA values if the word/doc_id is not part of the dictionary}
 }
+See the examples.
 }
 \description{
-Get either 
+Use the paragraph2vec model to 
 \itemize{
-\item{the embedding of documents, sentences or words}
-\item{the nearest documents/words which are similar to either a set of documents, words or a set of sentences containing words}
+\item{get the embedding of documents, sentences or words}
+\item{find the nearest documents/words which are similar to either a set of documents, words or a set of sentences containing words}
 }
 }
 \examples{
@@ -73,11 +75,11 @@ x$doc_id <- sprintf("doc_\%s", 1:nrow(x))
 model <- paragraph2vec(x = x, dim = 5, iter = 5)
 
 sentences <- list(
-  example = c("geld", "francken"),
-  hi = c("geld", "francken", "koning"),
+  example = c("geld", "diabetes"),
+  hi = c("geld", "diabetes", "koning"),
   test = c("geld"),
   nothing = character(), 
-  repr = c("geld", "francken", "koning"))
+  repr = c("geld", "diabetes", "koning"))
   
 ## Get embeddings (type =  'embedding')
 predict(model, newdata = c("geld", "koning", "unknownword", NA, "</s>", ""), 
@@ -92,6 +94,7 @@ predict(model, newdata = c("geld", "koning"), type = "nearest", which = "word2do
 predict(model, newdata = c("geld", "koning"), type = "nearest", which = "word2word")
 predict(model, newdata = sentences, type = "nearest", which = "sent2doc", top_n = 7)
 
+## Similar way on extracting similarities
 emb <- predict(model, sentences, type = "embedding")
 emb_docs <- as.matrix(model, type = "docs")
 paragraph2vec_similarity(emb, emb_docs, top_n = 3)

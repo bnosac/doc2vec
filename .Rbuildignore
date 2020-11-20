@@ -2,3 +2,6 @@
 ^\.Rproj\.user$
 .github
 dev
+README.Rmd
+README.html
+

@@ -24,7 +24,7 @@
 \item{...}{not used}
 }
 \value{
-a matrix with the word vectors where the rownames are the documents or words from the model vocabulary
+a matrix with the document or word vectors where the rownames are the documents or words upon which the model was trained
 }
 \description{
 Get the document or word vectors of a paragraph2vec model as a dense matrix.
