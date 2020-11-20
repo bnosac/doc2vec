@@ -124,18 +124,63 @@ Rcpp::DataFrame paragraph2vec_nearest(SEXP ptr, std::string x, std::size_t top_n
   return out;
 }
 
+// [[Rcpp::export]]
+Rcpp::List paragraph2vec_nearest_sentence(SEXP ptr, Rcpp::List x, std::size_t top_n = 10) {
+  Rcpp::XPtr<Doc2Vec> model(ptr);
+  real * infer_vector = NULL;
+  //int errnr = posix_memalign((void **)&infer_vector, 128, model->dim() * sizeof(real));
+  infer_vector = (float *)_aligned_malloc(model->dim() * sizeof(real), 128);
+  //if(errnr != 0) Rcpp::stop("posix_memalign failed");
+  
+  Rcpp::List similarities(x.size());
+  Rcpp::CharacterVector rownames_(x.names());
+  for(int i = 0; i < x.size(); ++i){
+    TaggedDocument doc;
+    std::vector<std::string> line = Rcpp::as<std::vector<std::string>>(x[i]);
+    line.push_back("</s>");
+    doc.m_word_num = line.size();
+    for(int j = 0; j < doc.m_word_num; j++){
+      strcpy(doc.m_words[j], line[j].c_str());
+    }
+    model->infer_doc(&doc, infer_vector);
+    // Get closest docs to sentence
+    knn_item_t knn_items[top_n];
+    model->sent_knn_docs(&doc, knn_items, top_n, infer_vector);
+    // Collect result in data.frame
+    std::vector<std::string> keys;
+    std::vector<float> distance;
+    std::vector<int> rank;
+    int r = 0;
+    for(auto kv : knn_items) {
+      std::string str(kv.word);
+      keys.push_back(str);
+      distance.push_back(kv.similarity);
+      r = r + 1;
+      rank.push_back(r);
+    } 
+    Rcpp::DataFrame out = Rcpp::DataFrame::create(
+      Rcpp::Named("term1") = Rcpp::as<std::string>(rownames_(i)),
+      Rcpp::Named("term2") = keys,
+      Rcpp::Named("similarity") = distance,
+      Rcpp::Named("rank") = rank,
+      Rcpp::Named("stringsAsFactors") = false
+    );
+    similarities[i] = out;
+  }
+  _aligned_free(infer_vector);
+  return similarities;
+}
+
 
 // [[Rcpp::export]]
 Rcpp::NumericMatrix paragraph2vec_embedding(SEXP ptr, std::string type = "docs", bool normalize = true) {
   Rcpp::XPtr<Doc2Vec> model(ptr);
-
   NN * net = model->nn();
   long long m_dim = net->m_dim;
   long long m_vocab_size  = net->m_vocab_size;
   long long m_corpus_size = net->m_corpus_size;
   long long vocab_size;
   Vocabulary* voc;
-  //auto m_dsyn0 = net->m_dsyn0;
   real * m_dsyn0;
   if(type == "docs"){
     if(normalize){
@@ -171,23 +216,11 @@ Rcpp::NumericMatrix paragraph2vec_embedding(SEXP ptr, std::string type = "docs",
       embedding(a, b) = (float)(m_dsyn0[a * m_dim + b]);
     }
   }
-  //net->m_syn0
-  //net->m_dsyn0
-  //fwrite(m_syn0, sizeof(real), m_vocab_size * m_dim, fout);
-  //fwrite(m_dsyn0, sizeof(real), m_corpus_size * m_dim, fout);
-  //if(m_hs) fwrite(m_syn1, sizeof(real), m_vocab_size * m_dim, fout);
-  //if(m_negtive) fwrite(m_syn1neg, sizeof(real), m_vocab_size * m_dim, fout);
-  //return;
-  // Rcpp::List out = Rcpp::List::create(
-  //   Rcpp::Named("embedding") = embedding,
-  //   Rcpp::Named("m_dim") = m_dim,
-  //   Rcpp::Named("m_vocab_size") = m_vocab_size,
-  //   Rcpp::Named("m_corpus_size") = m_corpus_size,
-  //   Rcpp::Named("m_hs") = net->m_hs,
-  //   Rcpp::Named("m_negtive") = net->m_negtive
-  // );
   return embedding;
 }
+  
+
+    
   
 
 
@@ -205,8 +238,8 @@ Rcpp::NumericMatrix paragraph2vec_infer(SEXP ptr, Rcpp::List x) {
     infer_vector = (float *)_aligned_malloc(model->dim() * sizeof(real), 128);
     //if(errnr != 0) Rcpp::stop("posix_memalign failed");
     
-    TaggedDocument doc;
     for(int i = 0; i < x.size(); ++i){
+      TaggedDocument doc;
       std::vector<std::string> line = Rcpp::as<std::vector<std::string>>(x[i]);
       line.push_back("</s>");
       doc.m_word_num = line.size();
@@ -214,18 +247,52 @@ Rcpp::NumericMatrix paragraph2vec_infer(SEXP ptr, Rcpp::List x) {
         strcpy(doc.m_words[j], line[j].c_str());
       }
       model->infer_doc(&doc, infer_vector);
-      //doc2vec.sent_knn_docs(&doc, knn_items, K, infer_vector);
       for (int b = 0; b < m_dim; b++) {
         embedding(i, b) = (float)(infer_vector[b]);
       }
     }
     _aligned_free(infer_vector);
-    /*
-    buildDoc(&doc, "反求工程", "cad", "建模", "技术", "研究", "</s>");
-    doc2vec.sent_knn_docs(&doc, knn_items, K, infer_vector);
-    */
     return embedding;
 }
 
-//real * infer_vector = NULL;
-//posix_memalign((void **)&infer_vector, 128, doc2vec.dim() * sizeof(real));
+
+// [[Rcpp::export]]
+Rcpp::NumericMatrix paragraph2vec_embedding_subset(SEXP ptr, Rcpp::CharacterVector x, std::string type = "docs", bool normalize = true) {
+  Rcpp::XPtr<Doc2Vec> model(ptr);
+  NN * net = model->nn();
+  long long m_dim = net->m_dim;
+  Vocabulary* voc;
+  real * m_dsyn0;
+  if(type == "docs"){
+    if(normalize){
+      m_dsyn0 = net->m_dsyn0norm;
+    }else{
+      m_dsyn0 = net->m_dsyn0;
+    }
+    voc = model->dvocab();
+  }else if(type == "words"){
+    if(normalize){
+      m_dsyn0 = net->m_syn0norm;
+    }else{
+      m_dsyn0 = net->m_syn0;
+    }
+    voc = model->wvocab();
+  }else{
+    Rcpp::stop("type should be either docs or words");
+  }
+  Rcpp::NumericMatrix embedding(x.size(), m_dim);
+  rownames(embedding) = x;
+  std::fill(embedding.begin(), embedding.end(), Rcpp::NumericVector::get_na());
+  std::string term;
+  for (int i = 0; i < x.size(); i++){
+    term = Rcpp::as<std::string>(x[i]);
+    auto a = voc->searchVocab(term.c_str());
+    if(a >= 0){
+      for (int b = 0; b < m_dim; b++) {
+        embedding(i, b) = (float)(m_dsyn0[a * m_dim + b]);
+      }
+    }
+  }
+  return embedding;
+}
+

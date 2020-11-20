@@ -81,7 +81,7 @@ x$nwords <- sapply(strsplit(x$text, " "), length)
 x <- subset(x, nwords < 1000 & nchar(text) > 0)
 
 ## Build the model get word embeddings and nearest neighbours
-model <- paragraph2vec(x = x, dim = 15, iter = 20)
+model <- paragraph2vec(x = x, dim = 15, iter = 5)
 str(model)
 embedding <- as.matrix(model, which = "words")
 embedding <- as.matrix(model, which = "docs")

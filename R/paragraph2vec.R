@@ -45,7 +45,7 @@
 #' x <- subset(x, nwords < 1000 & nchar(text) > 0)
 #' 
 #' ## Build the model get word embeddings and nearest neighbours
-#' model <- paragraph2vec(x = x, dim = 15, iter = 20)
+#' model <- paragraph2vec(x = x, dim = 15, iter = 5)
 #' str(model)
 #' embedding <- as.matrix(model, which = "words")
 #' embedding <- as.matrix(model, which = "docs")
@@ -117,7 +117,7 @@ paragraph2vec <- function(x,
 #' x <- subset(belgium_parliament, language %in% "french")
 #' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
 #' 
-#' model <- paragraph2vec(x = x, dim = 15, iter = 20)
+#' model <- paragraph2vec(x = x, dim = 15, iter = 5)
 #' 
 #' embedding <- as.matrix(model, which = "docs")
 #' embedding <- as.matrix(model, which = "words")
@@ -154,7 +154,7 @@ as.matrix.paragraph2vec_trained <- function(x, encoding='UTF-8', ...){
 #' x <- subset(belgium_parliament, language %in% "french")
 #' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
 #' 
-#' model <- paragraph2vec(x = x, dim = 15, iter = 20)
+#' model <- paragraph2vec(x = x, dim = 15, iter = 5)
 #' 
 #' path <- "mymodel.bin"
 #' \dontshow{
@@ -193,7 +193,7 @@ write.paragraph2vec <- function(x, file){
 #' x <- subset(belgium_parliament, language %in% "french")
 #' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
 #' 
-#' model <- paragraph2vec(x = x, dim = 15, iter = 20)
+#' model <- paragraph2vec(x = x, dim = 15, iter = 5)
 #' 
 #' path <- "mymodel.bin"
 #' \dontshow{
@@ -240,30 +240,130 @@ summary.paragraph2vec_trained <- function(object, type = "vocabulary", which = c
 #' @title Predict functionalities for a paragraph2vec model
 #' @description Get either 
 #' \itemize{
-#' \item{the embedding of documents or words}
-#' \item{TODO}
+#' \item{the embedding of documents, sentences or words}
+#' \item{the nearest documents/words which are similar to either a set of documents, words or a set of sentences containing words}
 #' }
 #' @param object a paragraph2vec model as returned by \code{\link{paragraph2vec}} or \code{\link{read.paragraph2vec}}
-#' @param newdata for type 'embedding', \code{newdata} should be TODO
-#' @param type either 'embedding' or 'nearest'. Defaults to 'nearest'.
-#' @param top_n show only the top n nearest neighbours. Defaults to 10.
+#' @param newdata either a character vector of words, a character vector of doc_id's or a list of sentences
+#' where the list elements are words part of the model dictionary. See the examples.
+#' @param type either 'embedding' or 'nearest' to get the embeddings or to find the closest similar text items. 
+#' Defaults to 'nearest'.
+#' @param which either one of 'docs', 'words', 'doc2doc', 'word2doc', 'word2word' or 'sent2doc' where
+#' \itemize{
+#' \item{'docs' or 'words' can be chosen if \code{type} is set to 'embedding' to indicate that \code{newdata} contains either doc_id's or words}
+#' \item{'doc2doc', 'word2doc', 'word2word', 'sent2doc' can be chosen if \code{type} is set to 'nearest' indicating to extract respectively
+#' the closest document to a document, the closest document to a word, the closest word to a word or the closest document to sentences.}
+#' }
+#' @param top_n show only the top n nearest neighbours. Defaults to 10. Only used for \code{type} 'nearest'.
+#' @param normalize logical indicating to normalize the embeddings. Defaults to \code{TRUE}. Only used for \code{type} 'embedding'.
 #' @param encoding set the encoding of the text elements to the specified encoding. Defaults to 'UTF-8'. 
 #' @param ... not used
 #' @return depending on the type, you get a different result back:
 #' \itemize{
-#' \item{TODO}
-#' \item{TODO}
+#' \item{for type nearest: a list of data.frames with columns term1, term2, similarity and rank indicating the elements which are closest to the provided \code{newdata}}
+#' \item{for type embedding: a matrix of embeddings of the words/documents or sentences provided in \code{newdata}, 
+#' rownames are either taken from the words/documents or list names of the sentences. The matrix has always the
+#' same number of rows as the length of \code{newdata}, possibly with NA values if the word/doc_id is not part of the dictionary}
 #' }
 #' @seealso \code{\link{paragraph2vec}}, \code{\link{read.paragraph2vec}}
 #' @export
 #' @examples 
-#' ## TODO
-predict.paragraph2vec <- function(object, newdata, type = c("nearest", "embedding"), top_n = 10L, encoding = "UTF-8", ...){
+#' \dontshow{if(require(tokenizers.bpe))\{}
+#' ## Get data + basic data preparation
+#' library(tokenizers.bpe)
+#' data(belgium_parliament, package = "tokenizers.bpe")
+#' x <- belgium_parliament
+#' x <- subset(x, language %in% "dutch")
+#' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
+#' x$text   <- tolower(x$text)
+#' x$text   <- gsub("[^[:alpha:]]", " ", x$text)
+#' x$text   <- gsub("[[:space:]]+", " ", x$text)
+#' x$text   <- trimws(x$text)
+#' x$doc_id <- sprintf("doc_%s", 1:nrow(x))
+#' 
+#' ## Build model
+#' model <- paragraph2vec(x = x, dim = 5, iter = 5)
+#' 
+#' sentences <- list(
+#'   example = c("geld", "francken"),
+#'   hi = c("geld", "francken", "koning"),
+#'   test = c("geld"),
+#'   nothing = character(), 
+#'   repr = c("geld", "francken", "koning"))
+#'   
+#' ## Get embeddings (type =  'embedding')
+#' predict(model, newdata = c("geld", "koning", "unknownword", NA, "</s>", ""), 
+#'                type = "embedding", which = "words")
+#' predict(model, newdata = c("doc_1", "doc_10", "unknowndoc", NA, "</s>"), 
+#'                type = "embedding", which = "docs")
+#' predict(model, sentences, type = "embedding")
+#' 
+#' ## Get most similar items (type =  'nearest')
+#' predict(model, newdata = c("doc_1", "doc_10"), type = "nearest", which = "doc2doc")
+#' predict(model, newdata = c("geld", "koning"), type = "nearest", which = "word2doc")
+#' predict(model, newdata = c("geld", "koning"), type = "nearest", which = "word2word")
+#' predict(model, newdata = sentences, type = "nearest", which = "sent2doc", top_n = 7)
+#' 
+#' emb <- predict(model, sentences, type = "embedding")
+#' emb_docs <- as.matrix(model, type = "docs")
+#' paragraph2vec_similarity(emb, emb_docs, top_n = 3)
+#' \dontshow{\} # End of main if statement running only if the required packages are installed}
+predict.paragraph2vec <- function(object, newdata, 
+                                  type = c("embedding", "nearest"), 
+                                  which = c("docs", "words", "doc2doc", "word2doc", "word2word", "sent2doc"), 
+                                  top_n = 10L, encoding = "UTF-8", normalize = TRUE, ...){
+  type  <- match.arg(type)
+  which <- match.arg(which)
+  top_n <- as.integer(top_n)
+  if(type == "embedding"){
+    stopifnot(which %in% c("docs", "words"))
+    if(is.character(newdata)){
+      x <- paragraph2vec_embedding_subset(object$model, x = newdata, type = which, normalize = normalize)
+      Encoding(rownames(x)) <- encoding
+    }else if(is.list(newdata)){
+      x <- paragraph2vec_infer(object$model, newdata)
+      Encoding(rownames(x)) <- encoding
+    }else{
+      stop("predict.paragraph2vec with type 'embedding' requires newdata to be either a character vector of words, a character vector of doc_id's which are part of the dictionary or a tokenised list where each list element is a character vector of words")
+    }
+  }else if(type == "nearest"){
+    stopifnot(which %in% c("doc2doc", "word2doc", "word2word", "sent2doc"))
+    if(which %in% c("doc2doc", "word2doc", "word2word")){
+      if(!is.character(newdata)){
+        if(which %in% c("word2doc", "word2word")){
+          stop(sprintf("predict.paragraph2vec with type 'nearest', '%s' requires newdata to be either a character vector of words which are part of the dictionary", which))
+        }else{
+          stop(sprintf("predict.paragraph2vec with type 'nearest', '%s' requires newdata to be either a character vector of doc_id's which are part of the dictionary", which))
+        }
+      }
+      x <- lapply(newdata, FUN = function(x, top_n, type, ...){
+        data <- paragraph2vec_nearest(object$model, x = x, top_n = top_n, type)    
+        Encoding(data$term1) <- encoding
+        Encoding(data$term2) <- encoding
+        data
+      }, top_n = top_n, type = which, ...)        
+    }else if(which %in% c("sent2doc")){
+      if(!is.list(newdata)){
+        stop(sprintf("predict.paragraph2vec with type 'nearest', '%s' requires newdata to be either a list of tokens", which))
+      }
+      x <- paragraph2vec_nearest_sentence(object$model, newdata, top_n = top_n)
+      x <- lapply(x, FUN = function(data){
+        Encoding(data$term1) <- encoding
+        Encoding(data$term2) <- encoding
+        data
+      }) 
+    }else{
+      stop(sprintf("unknown type %s", which))
+    }
+  }
+  x
 }
 
 #' @export
-predict.paragraph2vec_trained <- function(object, newdata, type = c("nearest", "embedding"), ...){
-  predict.paragraph2vec(object = object, newdata = newdata, type = type, ...)
+predict.paragraph2vec_trained <- function(object, newdata, which = c("docs", "words", "doc2doc", "word2doc", "word2word", "sent2doc"), type = c("embedding", "nearest"), ...){
+  type <- match.arg(type)
+  which <- match.arg(which)
+  predict.paragraph2vec(object = object, newdata = newdata, which = which, type = type, ...)
 }
 
 

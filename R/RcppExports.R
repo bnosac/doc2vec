@@ -21,11 +21,19 @@ paragraph2vec_nearest <- function(ptr, x, top_n = 10L, type = "doc2doc") {
     .Call('_doc2vec_paragraph2vec_nearest', PACKAGE = 'doc2vec', ptr, x, top_n, type)
 }
 
+paragraph2vec_nearest_sentence <- function(ptr, x, top_n = 10L) {
+    .Call('_doc2vec_paragraph2vec_nearest_sentence', PACKAGE = 'doc2vec', ptr, x, top_n)
+}
+
 paragraph2vec_embedding <- function(ptr, type = "docs", normalize = TRUE) {
     .Call('_doc2vec_paragraph2vec_embedding', PACKAGE = 'doc2vec', ptr, type, normalize)
 }
 
 paragraph2vec_infer <- function(ptr, x) {
     .Call('_doc2vec_paragraph2vec_infer', PACKAGE = 'doc2vec', ptr, x)
+}
+
+paragraph2vec_embedding_subset <- function(ptr, x, type = "docs", normalize = TRUE) {
+    .Call('_doc2vec_paragraph2vec_embedding_subset', PACKAGE = 'doc2vec', ptr, x, type, normalize)
 }
 
