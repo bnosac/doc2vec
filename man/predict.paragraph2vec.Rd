@@ -72,7 +72,10 @@ x$text   <- trimws(x$text)
 x$doc_id <- sprintf("doc_\%s", 1:nrow(x))
 
 ## Build model
-model <- paragraph2vec(x = x, dim = 5, iter = 5)
+model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
+\dontrun{
+model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
+}
 
 sentences <- list(
   example = c("geld", "diabetes"),

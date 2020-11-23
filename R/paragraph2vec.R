@@ -1,16 +1,21 @@
 #' @title Train a paragraph2vec also known as doc2vec model on text
 #' @description Construct a paragraph2vec model on text. 
 #' The algorithm is explained at \url{https://arxiv.org/pdf/1405.4053.pdf}.
-#' People also refer to this model as doc2vec. The model is an extension to 
-#' the word2vec algorithm, where an additional vector for every paragraph is added directly in
-#' the training.
-#' @param x a data.frame with colRumns doc_id and text or the path to the file on disk containing training data.
-#' Note that the text columns should be of type character, 
-#' should contain less than 1000 words where space or tab is 
+#' People also refer to this model as doc2vec.\cr
+#' The model is an extension to the word2vec algorithm, 
+#' where an additional vector for every paragraph is added directly in the training.
+#' @param x a data.frame with columns doc_id and text or the path to the file on disk containing training data.\cr
+#' Note that the text column should be of type character, should contain less than 1000 words where space or tab is 
 #' used as a word separator and that the text should not contain newline characters as these are considered document delimiters.
-#' @param type the type of algorithm to use, either 'cbow' or 'skip-gram'. Defaults to 'cbow'
-#' @param dim dimension of the word vectors. Defaults to 50.
-#' @param iter number of training iterations. Defaults to 5.
+#' @param type character string with the type of algorithm to use, either one of
+#' \itemize{
+#' \item{'PV-DM': Distributed Memory paragraph vectors}
+#' \item{'PV-DBOW': Distributed Bag Of Words paragraph vectors}
+#' }
+#' Defaults to 'PV-DM'. Training distributed memory vectors is much slower but provides better paragraph vectors
+#' compared to distributed bag of words.
+#' @param dim dimension of the word and paragraph vectors. Defaults to 50.
+#' @param iter number of training iterations. Defaults to 20.
 #' @param lr initial learning rate also known as alpha. Defaults to 0.05
 #' @param window skip length between words. Defaults to 5.
 #' @param hs logical indicating to use hierarchical softmax instead of negative sampling. Defaults to FALSE indicating to do negative sampling.
@@ -20,7 +25,7 @@
 #' @param threads number of CPU threads to use. Defaults to 1.
 #' @param encoding the encoding of \code{x} and \code{stopwords}. Defaults to 'UTF-8'. 
 #' Calculating the model always starts from files allowing to build a model on large corpora. The encoding argument 
-#' is passed on to \code{file} when writing \code{x} to hard disk in case you provided it as a character vector. 
+#' is passed on to \code{file} when writing \code{x} to hard disk in case you provided it as a data.frame. 
 #' @param ... further arguments passed on to the C++ function \code{paragraph2vec_train} - for expert use only
 #' @return an object of class \code{paragraph2vec_trained} which is a list with elements 
 #' \itemize{
@@ -28,7 +33,7 @@
 #' \item{data: a list with elements file: the training data used, n (the number of words in the training data), n_vocabulary (number of words in the vocabulary) and n_docs (number of documents)}
 #' \item{control: a list of the training arguments used, namely min_count, dim, window, iter, lr, skipgram, hs, negative, sample}
 #' }
-#' @references \url{https://arxiv.org/pdf/1405.4053.pdf}
+#' @references \url{https://arxiv.org/pdf/1405.4053.pdf}, \url{https://groups.google.com/g/word2vec-toolkit/c/Q49FIrNOQRo/m/J6KG8mUj45sJ}
 #' @seealso \code{\link{predict.paragraph2vec}}, \code{\link{as.matrix.paragraph2vec}}
 #' @export
 #' @examples
@@ -46,7 +51,10 @@
 #' x <- subset(x, nwords < 1000 & nchar(text) > 0)
 #' 
 #' ## Build the model get word embeddings and nearest neighbours
-#' model <- paragraph2vec(x = x, dim = 15, iter = 5)
+#' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
+#' \dontrun{
+#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
+#' }
 #' str(model)
 #' embedding <- as.matrix(model, which = "words")
 #' embedding <- as.matrix(model, which = "docs")
@@ -57,8 +65,8 @@
 #' vocab <- summary(model, type = "vocabulary",  which = "words")
 #' \dontshow{\} # End of main if statement running only if the required packages are installed}
 paragraph2vec <- function(x,
-                     type = c("cbow", "skip-gram"),
-                     dim = 50, window = ifelse(type == "cbow", 5L, 10L), 
+                     type = c("PV-DM", "PV-DBOW"),
+                     dim = 50, window = ifelse(type == "PV-DM", 10L, 5L), 
                      iter = 5L, lr = 0.05, hs = FALSE, negative = 5L, sample = 0.001, min_count = 5L, 
                      threads = 1L,
                      encoding = "UTF-8",
@@ -91,11 +99,11 @@ paragraph2vec <- function(x,
   threads <- as.integer(threads)
   iter <- as.integer(iter)
   lr <- as.numeric(lr)
-  cbow <- as.logical(type %in% "cbow")
+  cbow <- as.logical(type %in% "PV-DBOW")
   model <- paragraph2vec_train(trainFile = file_train, 
                                size = dim, cbow = cbow,
                                hs = hs, negative = negative, iterations = iter, window = window, alpha = lr, sample = sample,
-                               min_count = min_count, threads = threads)
+                               min_count = min_count, threads = threads, ...)
   model
 }
 
@@ -118,7 +126,10 @@ paragraph2vec <- function(x,
 #' x <- subset(belgium_parliament, language %in% "french")
 #' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
 #' 
-#' model <- paragraph2vec(x = x, dim = 15, iter = 5)
+#' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
+#' \dontrun{
+#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
+#' }
 #' 
 #' embedding <- as.matrix(model, which = "docs")
 #' embedding <- as.matrix(model, which = "words")
@@ -155,7 +166,10 @@ as.matrix.paragraph2vec_trained <- function(x, encoding='UTF-8', ...){
 #' x <- subset(belgium_parliament, language %in% "french")
 #' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
 #' 
-#' model <- paragraph2vec(x = x, dim = 15, iter = 5)
+#' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
+#' \dontrun{
+#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
+#' }
 #' 
 #' path <- "mymodel.bin"
 #' \dontshow{
@@ -195,7 +209,10 @@ write.paragraph2vec <- function(x, file){
 #' x <- subset(belgium_parliament, language %in% "french")
 #' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
 #' 
-#' model <- paragraph2vec(x = x, dim = 15, iter = 5)
+#' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
+#' \dontrun{
+#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
+#' }
 #' 
 #' path <- "mymodel.bin"
 #' \dontshow{
@@ -286,7 +303,10 @@ summary.paragraph2vec_trained <- function(object, type = "vocabulary", which = c
 #' x$doc_id <- sprintf("doc_%s", 1:nrow(x))
 #' 
 #' ## Build model
-#' model <- paragraph2vec(x = x, dim = 5, iter = 5)
+#' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
+#' \dontrun{
+#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
+#' }
 #' 
 #' sentences <- list(
 #'   example = c("geld", "diabetes"),

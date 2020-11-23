@@ -6,9 +6,9 @@
 \usage{
 paragraph2vec(
   x,
-  type = c("cbow", "skip-gram"),
+  type = c("PV-DM", "PV-DBOW"),
   dim = 50,
-  window = ifelse(type == "cbow", 5L, 10L),
+  window = ifelse(type == "PV-DM", 10L, 5L),
   iter = 5L,
   lr = 0.05,
   hs = FALSE,
@@ -21,18 +21,23 @@ paragraph2vec(
 )
 }
 \arguments{
-\item{x}{a data.frame with colRumns doc_id and text or the path to the file on disk containing training data.
-Note that the text columns should be of type character, 
-should contain less than 1000 words where space or tab is 
+\item{x}{a data.frame with columns doc_id and text or the path to the file on disk containing training data.\cr
+Note that the text column should be of type character, should contain less than 1000 words where space or tab is 
 used as a word separator and that the text should not contain newline characters as these are considered document delimiters.}
 
-\item{type}{the type of algorithm to use, either 'cbow' or 'skip-gram'. Defaults to 'cbow'}
+\item{type}{character string with the type of algorithm to use, either one of
+\itemize{
+\item{'PV-DM': Distributed Memory paragraph vectors}
+\item{'PV-DBOW': Distributed Bag Of Words paragraph vectors}
+}
+Defaults to 'PV-DM'. Training distributed memory vectors is much slower but provides better paragraph vectors
+compared to distributed bag of words.}
 
-\item{dim}{dimension of the word vectors. Defaults to 50.}
+\item{dim}{dimension of the word and paragraph vectors. Defaults to 50.}
 
 \item{window}{skip length between words. Defaults to 5.}
 
-\item{iter}{number of training iterations. Defaults to 5.}
+\item{iter}{number of training iterations. Defaults to 20.}
 
 \item{lr}{initial learning rate also known as alpha. Defaults to 0.05}
 
@@ -48,7 +53,7 @@ used as a word separator and that the text should not contain newline characters
 
 \item{encoding}{the encoding of \code{x} and \code{stopwords}. Defaults to 'UTF-8'. 
 Calculating the model always starts from files allowing to build a model on large corpora. The encoding argument 
-is passed on to \code{file} when writing \code{x} to hard disk in case you provided it as a character vector.}
+is passed on to \code{file} when writing \code{x} to hard disk in case you provided it as a data.frame.}
 
 \item{...}{further arguments passed on to the C++ function \code{paragraph2vec_train} - for expert use only}
 }
@@ -63,9 +68,9 @@ an object of class \code{paragraph2vec_trained} which is a list with elements
 \description{
 Construct a paragraph2vec model on text. 
 The algorithm is explained at \url{https://arxiv.org/pdf/1405.4053.pdf}.
-People also refer to this model as doc2vec. The model is an extension to 
-the word2vec algorithm, where an additional vector for every paragraph is added directly in
-the training.
+People also refer to this model as doc2vec.\cr
+The model is an extension to the word2vec algorithm, 
+where an additional vector for every paragraph is added directly in the training.
 }
 \examples{
 \dontshow{if(require(tokenizers.bpe))\{}
@@ -82,7 +87,10 @@ x$nwords <- sapply(strsplit(x$text, " "), length)
 x <- subset(x, nwords < 1000 & nchar(text) > 0)
 
 ## Build the model get word embeddings and nearest neighbours
-model <- paragraph2vec(x = x, dim = 15, iter = 5)
+model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
+\dontrun{
+model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
+}
 str(model)
 embedding <- as.matrix(model, which = "words")
 embedding <- as.matrix(model, which = "docs")
@@ -94,7 +102,7 @@ vocab <- summary(model, type = "vocabulary",  which = "words")
 \dontshow{\} # End of main if statement running only if the required packages are installed}
 }
 \references{
-\url{https://arxiv.org/pdf/1405.4053.pdf}
+\url{https://arxiv.org/pdf/1405.4053.pdf}, \url{https://groups.google.com/g/word2vec-toolkit/c/Q49FIrNOQRo/m/J6KG8mUj45sJ}
 }
 \seealso{
 \code{\link{predict.paragraph2vec}}, \code{\link{as.matrix.paragraph2vec}}
