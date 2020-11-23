@@ -134,6 +134,7 @@ Rcpp::List paragraph2vec_nearest_sentence(SEXP ptr, Rcpp::List x, std::size_t to
   
   Rcpp::List similarities(x.size());
   Rcpp::CharacterVector rownames_(x.names());
+  similarities.attr("names") = rownames_;
   for(int i = 0; i < x.size(); ++i){
     TaggedDocument doc;
     std::vector<std::string> line = Rcpp::as<std::vector<std::string>>(x[i]);
