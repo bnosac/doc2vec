@@ -18,7 +18,8 @@ WMD::WMD(Doc2Vec * doc2vec): m_corpus(NULL), m_doc2vec(doc2vec),
   //errnr = posix_memalign((void **)&m_infer_vector, 128, m_doc2vec->m_nn->m_dim * sizeof(real));
   m_infer_vector = (float *)_aligned_malloc(m_doc2vec->m_nn->m_dim * sizeof(real), 128);
   //if(errnr != 0) Rcpp::stop("posix_memalign failed");
-  m_doc2vec_knns = new knn_item_t[MAX_DOC2VEC_KNN];
+  //m_doc2vec_knns = new knn_item_t[MAX_DOC2VEC_KNN];
+  m_doc2vec_knns.reserve(MAX_DOC2VEC_KNN);
 }
 
 WMD::~WMD()
@@ -28,7 +29,9 @@ WMD::~WMD()
   if(m_corpus) delete [] m_corpus;
   if(m_dis_vector) _aligned_free(m_dis_vector);
   if(m_infer_vector) _aligned_free(m_infer_vector);
-  if(m_doc2vec_knns) delete [] m_doc2vec_knns;
+  //if(m_doc2vec_knns) delete [] m_doc2vec_knns;
+  m_doc2vec_knns.clear();
+  m_doc2vec_knns.shrink_to_fit();
 }
 
 void WMD::train()
@@ -68,7 +71,7 @@ void WMD::loadFromDoc2Vec()
   }
 }
 
-void WMD::sent_knn_docs(TaggedDocument * doc, knn_item_t * knns, int k)
+void WMD::sent_knn_docs(TaggedDocument * doc, std::vector<knn_item_t> knns, int k)
 {
   long long b, c;
   UnWeightedDocument * target;
@@ -92,7 +95,7 @@ void WMD::sent_knn_docs(TaggedDocument * doc, knn_item_t * knns, int k)
   for(b = 0; b < k; b++) strcpy(knns[b].word, m_doc2vec->m_doc_vocab->m_vocab[knns[b].idx].word);
 }
 
-void WMD::sent_knn_docs_ex(TaggedDocument * doc, knn_item_t * knns, int k)
+void WMD::sent_knn_docs_ex(TaggedDocument * doc, std::vector<knn_item_t> knns, int k)
 {
   m_doc2vec->sent_knn_docs(doc, m_doc2vec_knns, MAX_DOC2VEC_KNN, m_infer_vector);
   long long b, c, idx;

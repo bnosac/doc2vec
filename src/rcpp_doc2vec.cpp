@@ -93,7 +93,8 @@ std::vector<std::string> paragraph2vec_dictionary(SEXP ptr, std::string type = "
 // [[Rcpp::export]]
 Rcpp::DataFrame paragraph2vec_nearest(SEXP ptr, std::string x, std::size_t top_n = 10, std::string type = "doc2doc") {
   Rcpp::XPtr<Doc2Vec> model(ptr);
-  knn_item_t knn_items[top_n];
+  //knn_item_t knn_items[top_n];
+  std::vector<knn_item_t> knn_items(top_n);
   if(type == "doc2doc"){
     model->doc_knn_docs(x.c_str(), knn_items, top_n);
   }else if(type == "word2doc"){
@@ -145,7 +146,8 @@ Rcpp::List paragraph2vec_nearest_sentence(SEXP ptr, Rcpp::List x, std::size_t to
     }
     model->infer_doc(&doc, infer_vector);
     // Get closest docs to sentence
-    knn_item_t knn_items[top_n];
+    //knn_item_t knn_items[top_n];
+    std::vector<knn_item_t> knn_items(top_n);
     model->sent_knn_docs(&doc, knn_items, top_n, infer_vector);
     // Collect result in data.frame
     std::vector<std::string> keys;

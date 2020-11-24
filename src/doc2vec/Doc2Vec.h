@@ -36,11 +36,11 @@ public:
   real doc_likelihood(TaggedDocument * doc, int skip = -1);
   real context_likelihood(TaggedDocument * doc, int sentence_position);
   void infer_doc(TaggedDocument * doc, real * vector, int skip = -1);
-  bool word_knn_words(const char * search, knn_item_t * knns, int k);
-  bool doc_knn_docs(const char * search, knn_item_t * knns, int k);
-  bool word_knn_docs(const char * search, knn_item_t * knns, int k);
-  void sent_knn_words(TaggedDocument * doc, knn_item_t * knns, int k, real * infer_vector);
-  void sent_knn_docs(TaggedDocument * doc, knn_item_t * knns, int k, real * infer_vector);
+  bool word_knn_words(const char * search, std::vector<knn_item_t> knns, int k);
+  bool doc_knn_docs(const char * search, std::vector<knn_item_t> knns, int k);
+  bool word_knn_docs(const char * search, std::vector<knn_item_t> knns, int k);
+  void sent_knn_words(TaggedDocument * doc, std::vector<knn_item_t> knns, int k, real * infer_vector);
+  void sent_knn_docs(TaggedDocument * doc, std::vector<knn_item_t> knns, int k, real * infer_vector);
   real similarity(real * src, real * target);
   real distance(real * src, real * target);
 
@@ -53,7 +53,7 @@ private:
   void initTrainModelThreads(const char * train_file, int threads, int iter);
   bool obj_knn_objs(const char * search, real* src,
     bool search_is_word, bool target_is_word,
-    knn_item_t * knns, int k);
+    std::vector<knn_item_t> knns, int k);
 
 private:
   Vocabulary * m_word_vocab;
@@ -83,7 +83,7 @@ struct knn_item_t
   long long idx;
   real similarity;
 };
-void top_init(knn_item_t * knns, int k);
-void top_collect(knn_item_t * knns, int k, long long idx, real similarity);
-void top_sort(knn_item_t * knns, int k);
+void top_init(std::vector<knn_item_t> knns, int k);
+void top_collect(std::vector<knn_item_t> knns, int k, long long idx, real similarity);
+void top_sort(std::vector<knn_item_t> knns, int k);
 #endif

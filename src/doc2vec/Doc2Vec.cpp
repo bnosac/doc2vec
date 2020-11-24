@@ -134,7 +134,7 @@ void Doc2Vec::initTrainModelThreads(const char * train_file, int threads, int it
 
 bool Doc2Vec::obj_knn_objs(const char * search, real * src,
   bool search_is_word, bool target_is_word,
-  knn_item_t * knns, int k)
+  std::vector<knn_item_t> knns, int k)
 {
   long long a = -1, b, c, target_size;
   real * search_vectors, * target, * target_vectors;
@@ -166,28 +166,28 @@ bool Doc2Vec::obj_knn_objs(const char * search, real * src,
   return true;
 }
 
-bool Doc2Vec::word_knn_words(const char * search, knn_item_t * knns, int k)
+bool Doc2Vec::word_knn_words(const char * search, std::vector<knn_item_t> knns, int k)
 {
   return obj_knn_objs(search, NULL, true, true, knns, k);
 }
 
-bool Doc2Vec::doc_knn_docs(const char * search, knn_item_t * knns, int k)
+bool Doc2Vec::doc_knn_docs(const char * search, std::vector<knn_item_t> knns, int k)
 {
   return obj_knn_objs(search, NULL, false, false, knns, k);
 }
 
-bool Doc2Vec::word_knn_docs(const char * search, knn_item_t * knns, int k)
+bool Doc2Vec::word_knn_docs(const char * search, std::vector<knn_item_t> knns, int k)
 {
   return obj_knn_objs(search, NULL, true, false, knns, k);
 }
 
-void Doc2Vec::sent_knn_words(TaggedDocument * doc, knn_item_t * knns, int k, real * infer_vector)
+void Doc2Vec::sent_knn_words(TaggedDocument * doc, std::vector<knn_item_t> knns, int k, real * infer_vector)
 {
   infer_doc(doc, infer_vector);
   obj_knn_objs(NULL, infer_vector, false, true, knns, k);
 }
 
-void Doc2Vec::sent_knn_docs(TaggedDocument * doc, knn_item_t * knns, int k, real * infer_vector)
+void Doc2Vec::sent_knn_docs(TaggedDocument * doc, std::vector<knn_item_t> knns, int k, real * infer_vector)
 {
   infer_doc(doc, infer_vector);
   obj_knn_objs(NULL, infer_vector, false, false, knns, k);
@@ -310,7 +310,7 @@ Vocabulary* Doc2Vec::dvocab() {return m_doc_vocab;}
 NN * Doc2Vec::nn() {return m_nn;}
 /////==============================DOC2VEC end========================
 
-static void heap_adjust(knn_item_t * knns, int s, int m)
+static void heap_adjust(std::vector<knn_item_t> knns, int s, int m)
 {
   real similarity = knns[s].similarity;
   long long idx = knns[s].idx;
@@ -325,14 +325,14 @@ static void heap_adjust(knn_item_t * knns, int s, int m)
   knns[s].idx = idx;
 }
 
-void top_init(knn_item_t * knns, int k)
+void top_init(std::vector<knn_item_t> knns, int k)
 {
   for(int i = k / 2 - 1; i >= 0; i--) {
     heap_adjust(knns, i, k);
   }
 }
 
-void top_collect(knn_item_t * knns, int k, long long idx, real similarity)
+void top_collect(std::vector<knn_item_t> knns, int k, long long idx, real similarity)
 {
   if(similarity <= knns[0].similarity) return;
   knns[0].similarity = similarity;
@@ -340,7 +340,7 @@ void top_collect(knn_item_t * knns, int k, long long idx, real similarity)
   heap_adjust(knns, 0, k);
 }
 
-void top_sort(knn_item_t * knns, int k)
+void top_sort(std::vector<knn_item_t> knns, int k)
 {
   real similarity;
   long long idx;
