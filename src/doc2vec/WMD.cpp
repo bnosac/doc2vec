@@ -8,7 +8,7 @@
 // //////////////WMD/////////////////////////////
 WMD::WMD(Doc2Vec * doc2vec): m_corpus(NULL), m_doc2vec(doc2vec),
   m_dis_vector(NULL), m_infer_vector(NULL),
-  m_doc2vec_knns(NULL)
+  m_doc2vec_knns(MAX_DOC2VEC_KNN)
 {
   //int errnr;
   m_corpus = new UnWeightedDocument*[m_doc2vec->m_nn->m_corpus_size];
@@ -19,7 +19,7 @@ WMD::WMD(Doc2Vec * doc2vec): m_corpus(NULL), m_doc2vec(doc2vec),
   m_infer_vector = (float *)_aligned_malloc(m_doc2vec->m_nn->m_dim * sizeof(real), 128);
   //if(errnr != 0) Rcpp::stop("posix_memalign failed");
   //m_doc2vec_knns = new knn_item_t[MAX_DOC2VEC_KNN];
-  m_doc2vec_knns.reserve(MAX_DOC2VEC_KNN);
+  //m_doc2vec_knns.reserve(MAX_DOC2VEC_KNN);
 }
 
 WMD::~WMD()
