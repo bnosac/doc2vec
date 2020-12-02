@@ -52,7 +52,7 @@
 #' 
 #' ## Build the model get word embeddings and nearest neighbours
 #' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
-#' \dontrun{
+#' \donttest{
 #' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
 #' }
 #' str(model)
@@ -127,7 +127,7 @@ paragraph2vec <- function(x,
 #' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
 #' 
 #' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
-#' \dontrun{
+#' \donttest{
 #' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
 #' }
 #' 
@@ -167,7 +167,7 @@ as.matrix.paragraph2vec_trained <- function(x, encoding='UTF-8', ...){
 #' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
 #' 
 #' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
-#' \dontrun{
+#' \donttest{
 #' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
 #' }
 #' 
@@ -210,7 +210,7 @@ write.paragraph2vec <- function(x, file){
 #' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
 #' 
 #' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
-#' \dontrun{
+#' \donttest{
 #' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
 #' }
 #' 
@@ -304,7 +304,7 @@ summary.paragraph2vec_trained <- function(object, type = "vocabulary", which = c
 #' 
 #' ## Build model
 #' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
-#' \dontrun{
+#' \donttest{
 #' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
 #' }
 #' 

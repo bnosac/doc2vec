@@ -73,7 +73,7 @@ x$doc_id <- sprintf("doc_\%s", 1:nrow(x))
 
 ## Build model
 model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
-\dontrun{
+\donttest{
 model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
 }
 

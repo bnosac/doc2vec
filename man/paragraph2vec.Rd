@@ -88,7 +88,7 @@ x <- subset(x, nwords < 1000 & nchar(text) > 0)
 
 ## Build the model get word embeddings and nearest neighbours
 model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
-\dontrun{
+\donttest{
 model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
 }
 str(model)
