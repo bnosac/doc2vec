@@ -37,7 +37,7 @@ x <- subset(belgium_parliament, language \%in\% "french")
 x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
 
 model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
-\dontrun{
+\donttest{
 model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
 }
 

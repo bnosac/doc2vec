@@ -6,9 +6,9 @@
 \usage{
 paragraph2vec(
   x,
-  type = c("PV-DM", "PV-DBOW"),
+  type = c("PV-DBOW", "PV-DM"),
   dim = 50,
-  window = ifelse(type == "PV-DM", 10L, 5L),
+  window = ifelse(type == "PV-DM", 5L, 10L),
   iter = 5L,
   lr = 0.05,
   hs = FALSE,
@@ -30,12 +30,11 @@ used as a word separator and that the text should not contain newline characters
 \item{'PV-DM': Distributed Memory paragraph vectors}
 \item{'PV-DBOW': Distributed Bag Of Words paragraph vectors}
 }
-Defaults to 'PV-DM'. Training distributed memory vectors is much slower but provides better paragraph vectors
-compared to distributed bag of words.}
+Defaults to 'PV-DBOW'.}
 
 \item{dim}{dimension of the word and paragraph vectors. Defaults to 50.}
 
-\item{window}{skip length between words. Defaults to 5.}
+\item{window}{skip length between words. Defaults to 10 for PV-DM and 5 for PV-DBOW}
 
 \item{iter}{number of training iterations. Defaults to 20.}
 
@@ -87,9 +86,9 @@ x$nwords <- sapply(strsplit(x$text, " "), length)
 x <- subset(x, nwords < 1000 & nchar(text) > 0)
 
 ## Build the model get word embeddings and nearest neighbours
-model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
-\dontrun{
-model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
+model <- paragraph2vec(x = x, type = "PV-DM", dim = 15,  iter = 5)
+\donttest{
+model <- paragraph2vec(x = x, type = "PV-DBOW",   dim = 100, iter = 20)
 }
 str(model)
 embedding <- as.matrix(model, which = "words")

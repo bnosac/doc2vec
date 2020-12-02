@@ -12,12 +12,11 @@
 #' \item{'PV-DM': Distributed Memory paragraph vectors}
 #' \item{'PV-DBOW': Distributed Bag Of Words paragraph vectors}
 #' }
-#' Defaults to 'PV-DM'. Training distributed memory vectors is much slower but provides better paragraph vectors
-#' compared to distributed bag of words.
+#' Defaults to 'PV-DBOW'. 
 #' @param dim dimension of the word and paragraph vectors. Defaults to 50.
 #' @param iter number of training iterations. Defaults to 20.
 #' @param lr initial learning rate also known as alpha. Defaults to 0.05
-#' @param window skip length between words. Defaults to 5.
+#' @param window skip length between words. Defaults to 10 for PV-DM and 5 for PV-DBOW
 #' @param hs logical indicating to use hierarchical softmax instead of negative sampling. Defaults to FALSE indicating to do negative sampling.
 #' @param negative integer with the number of negative samples. Only used in case hs is set to FALSE
 #' @param sample threshold for occurrence of words. Defaults to 0.001
@@ -51,9 +50,9 @@
 #' x <- subset(x, nwords < 1000 & nchar(text) > 0)
 #' 
 #' ## Build the model get word embeddings and nearest neighbours
-#' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
-#' \dontrun{
-#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
+#' model <- paragraph2vec(x = x, type = "PV-DM", dim = 15,  iter = 5)
+#' \donttest{
+#' model <- paragraph2vec(x = x, type = "PV-DBOW",   dim = 100, iter = 20)
 #' }
 #' str(model)
 #' embedding <- as.matrix(model, which = "words")
@@ -65,8 +64,8 @@
 #' vocab <- summary(model, type = "vocabulary",  which = "words")
 #' \dontshow{\} # End of main if statement running only if the required packages are installed}
 paragraph2vec <- function(x,
-                     type = c("PV-DM", "PV-DBOW"),
-                     dim = 50, window = ifelse(type == "PV-DM", 10L, 5L), 
+                     type = c("PV-DBOW", "PV-DM"),
+                     dim = 50, window = ifelse(type == "PV-DM", 5L, 10L), 
                      iter = 5L, lr = 0.05, hs = FALSE, negative = 5L, sample = 0.001, min_count = 5L, 
                      threads = 1L,
                      encoding = "UTF-8",
@@ -99,9 +98,10 @@ paragraph2vec <- function(x,
   threads <- as.integer(threads)
   iter <- as.integer(iter)
   lr <- as.numeric(lr)
-  cbow <- as.logical(type %in% "PV-DBOW")
+  # cbow = 0 = skip-gram                                             = PV-DBOW
+  # cbow = 1 = continuous bag of words including vector of paragraph = PV-DM
   model <- paragraph2vec_train(trainFile = file_train, 
-                               size = dim, cbow = cbow,
+                               size = dim, cbow = as.logical(type %in% "PV-DM"),
                                hs = hs, negative = negative, iterations = iter, window = window, alpha = lr, sample = sample,
                                min_count = min_count, threads = threads, ...)
   model
@@ -127,7 +127,7 @@ paragraph2vec <- function(x,
 #' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
 #' 
 #' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
-#' \dontrun{
+#' \donttest{
 #' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
 #' }
 #' 
@@ -167,7 +167,7 @@ as.matrix.paragraph2vec_trained <- function(x, encoding='UTF-8', ...){
 #' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
 #' 
 #' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
-#' \dontrun{
+#' \donttest{
 #' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
 #' }
 #' 
@@ -210,7 +210,7 @@ write.paragraph2vec <- function(x, file){
 #' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
 #' 
 #' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
-#' \dontrun{
+#' \donttest{
 #' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
 #' }
 #' 
@@ -304,7 +304,7 @@ summary.paragraph2vec_trained <- function(object, type = "vocabulary", which = c
 #' 
 #' ## Build model
 #' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
-#' \dontrun{
+#' \donttest{
 #' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
 #' }
 #' 
