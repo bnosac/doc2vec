@@ -25,7 +25,7 @@ public:
     int dim, int cbow, int hs, int negtive,
     int iter, int window,
     real alpha, real sample,
-    int min_count, int threads);
+    int min_count, int threads, int trace);
   long long dim();
   Vocabulary* wvocab();
   Vocabulary* dvocab();
@@ -67,6 +67,7 @@ private:
   real m_start_alpha; //fix lr
   real m_sample;
   int m_iter;
+  int m_trace;
 
   //no need to flush to disk
   TaggedBrownCorpus * m_brown_corpus;

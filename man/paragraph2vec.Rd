@@ -16,6 +16,7 @@ paragraph2vec(
   sample = 0.001,
   min_count = 5L,
   threads = 1L,
+  trace = FALSE,
   encoding = "UTF-8",
   ...
 )
@@ -49,6 +50,8 @@ Defaults to 'PV-DBOW'.}
 \item{min_count}{integer indicating the number of time a word should occur to be considered as part of the training vocabulary. Defaults to 5.}
 
 \item{threads}{number of CPU threads to use. Defaults to 1.}
+
+\item{trace}{logical indicating to show progress. Defaults to FALSE.}
 
 \item{encoding}{the encoding of \code{x} and \code{stopwords}. Defaults to 'UTF-8'. 
 Calculating the model always starts from files allowing to build a model on large corpora. The encoding argument 

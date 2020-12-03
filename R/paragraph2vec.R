@@ -22,6 +22,7 @@
 #' @param sample threshold for occurrence of words. Defaults to 0.001
 #' @param min_count integer indicating the number of time a word should occur to be considered as part of the training vocabulary. Defaults to 5.
 #' @param threads number of CPU threads to use. Defaults to 1.
+#' @param trace logical indicating to show progress. Defaults to FALSE.
 #' @param encoding the encoding of \code{x} and \code{stopwords}. Defaults to 'UTF-8'. 
 #' Calculating the model always starts from files allowing to build a model on large corpora. The encoding argument 
 #' is passed on to \code{file} when writing \code{x} to hard disk in case you provided it as a data.frame. 
@@ -68,6 +69,7 @@ paragraph2vec <- function(x,
                      dim = 50, window = ifelse(type == "PV-DM", 5L, 10L), 
                      iter = 5L, lr = 0.05, hs = FALSE, negative = 5L, sample = 0.001, min_count = 5L, 
                      threads = 1L,
+                     trace = FALSE,
                      encoding = "UTF-8",
                      ...){
   type <- match.arg(type)
@@ -103,7 +105,7 @@ paragraph2vec <- function(x,
   model <- paragraph2vec_train(trainFile = file_train, 
                                size = dim, cbow = as.logical(type %in% "PV-DM"),
                                hs = hs, negative = negative, iterations = iter, window = window, alpha = lr, sample = sample,
-                               min_count = min_count, threads = threads, ...)
+                               min_count = min_count, threads = threads, trace = as.integer(trace), ...)
   model
 }
 

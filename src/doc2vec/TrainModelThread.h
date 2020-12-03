@@ -36,7 +36,7 @@ private:
   TaggedBrownCorpus* m_corpus;
   bool m_infer;
 
-  //clock_t m_start;
+  clock_t m_start;
   unsigned long long m_next_random;
 
   long long m_sen[MAX_SENTENCE_LENGTH];

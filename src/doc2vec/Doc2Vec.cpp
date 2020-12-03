@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+#include <chrono>
 #include "Doc2Vec.h"
 #include "NN.h"
 #include "Vocab.h"
@@ -67,7 +68,7 @@ void Doc2Vec::train(const char * train_file,
   int dim, int cbow, int hs, int negtive,
   int iter, int window,
   real alpha, real sample,
-  int min_count, int threads)
+  int min_count, int threads, int trace)
 {
   //printf("Starting training using file %s\n", train_file);
   m_cbow = cbow;
@@ -77,6 +78,7 @@ void Doc2Vec::train(const char * train_file,
   m_start_alpha = alpha;
   m_sample = sample;
   m_iter = iter;
+  m_trace = trace;
 
   m_word_vocab = new Vocabulary(train_file, min_count);
   m_doc_vocab = new Vocabulary(train_file, 1, true);
@@ -95,7 +97,10 @@ void Doc2Vec::train(const char * train_file,
   }
   for (size_t a = 0; a < m_trainModelThreads.size(); a++) pthread_join(pt[a], NULL);
   free(pt);
-
+  if(m_trace > 0){
+    std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    Rcpp::Rcout << Rcpp::as<Rcpp::Datetime>(Rcpp::wrap(t)) << " Closed all threads, normalising & WMD" << "\n";     
+  }
   m_nn->norm();
   m_wmd = new WMD(this);
   m_wmd->train();

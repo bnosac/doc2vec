@@ -1,3 +1,5 @@
+#include <Rcpp.h>
+#include <chrono>
 #include "TrainModelThread.h"
 #include "Doc2Vec.h"
 #include "TaggedBrownCorpus.h"
@@ -12,7 +14,7 @@ TrainModelThread::TrainModelThread(long long id, Doc2Vec * doc2vec,
   m_corpus = sub_corpus;
   m_infer = infer;
 
-  //m_start = clock();
+  m_start = clock();
   m_next_random = id;
   m_sentence_length = 0;
   m_sentence_nosample_length = 0;
@@ -34,6 +36,17 @@ void TrainModelThread::train()
   TaggedDocument * doc = NULL;
   for(int local_iter = 0; local_iter < m_doc2vec->m_iter; local_iter++)
   {
+    if(m_id == 0){
+      if(m_doc2vec->m_trace > 0){
+        std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        if(m_doc2vec->m_trace > 1){
+          Rcpp::Rcout << "\n" << Rcpp::as<Rcpp::Datetime>(Rcpp::wrap(t)) << " Start iteration " << local_iter + 1 << "/" << m_doc2vec->m_iter << ", alpha: " << m_doc2vec->m_alpha << "\n";       
+        }else{
+          Rcpp::Rcout << Rcpp::as<Rcpp::Datetime>(Rcpp::wrap(t)) << " Start iteration " << local_iter + 1 << "/" << m_doc2vec->m_iter << ", alpha: " << m_doc2vec->m_alpha << "\n";     
+        }
+      }
+    }
+    
     while((doc = m_corpus->next()) != NULL)
     {
       updateLR();
@@ -45,6 +58,11 @@ void TrainModelThread::train()
     m_doc2vec->m_word_count_actual += m_word_count - m_last_word_count;
     m_word_count = 0;
     m_last_word_count = 0;
+  }
+  
+  if(m_doc2vec->m_trace > 1){
+    std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    Rcpp::Rcout << "\nThread " << m_id << " has finished training at " << Rcpp::as<Rcpp::Datetime>(Rcpp::wrap(t)) << "\n";       
   }
 }
 
@@ -60,7 +78,14 @@ void TrainModelThread::updateLR()
      m_doc2vec->m_word_count_actual / (real)(m_doc2vec->m_iter * train_words + 1) * 100,
      m_doc2vec->m_word_count_actual / ((real)(now - m_start + 1) / (real)CLOCKS_PER_SEC * 1000));
     fflush(stdout);
-     */
+    */
+    if(m_doc2vec->m_trace > 1){
+      printf("%cAlpha: %f  Progress: %.2f%%  Words/sec: %.2fk  ", 13, m_doc2vec->m_alpha,
+             m_doc2vec->m_word_count_actual / (real)(m_doc2vec->m_iter * train_words + 1) * 100,
+             m_doc2vec->m_word_count_actual / ((real)(clock() - m_start + 1) / (real)CLOCKS_PER_SEC * 1000));
+      fflush(stdout);
+    }
+    //R_FlushConsole();
     m_doc2vec->m_alpha = m_doc2vec->m_start_alpha * (1 - m_doc2vec->m_word_count_actual / (real)(m_doc2vec->m_iter * train_words + 1));
     m_doc2vec->m_alpha = MAX(m_doc2vec->m_alpha, m_doc2vec->m_start_alpha * 0.0001);
   }
