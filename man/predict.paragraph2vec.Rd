@@ -64,7 +64,7 @@ library(udpipe)
 data(belgium_parliament, package = "tokenizers.bpe")
 x <- belgium_parliament
 x <- subset(x, language \%in\% "dutch")
-x <- subset(x, nchar(text) > 0 & txt_count(text, pattern " ") < 1000)
+x <- subset(x, nchar(text) > 0 & txt_count(text, pattern = " ") < 1000)
 x$doc_id <- sprintf("doc_\%s", 1:nrow(x))
 x$text   <- tolower(x$text)
 x$text   <- gsub("[^[:alpha:]]", " ", x$text)
