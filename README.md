@@ -50,20 +50,22 @@ x <- subset(x, nwords < 1000 & nchar(text) > 0)
 
 
 ```r
-model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 100, iter = 20, min_count = 5, threads = 2, trace = TRUE)
+model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 100, iter = 20, min_count = 5, 
+                       lr = 0.05, threads = 4)
 ```
 
 
 ```r
-## Low-dimensional model using DM, for speed and display purposes
-model <- paragraph2vec(x = x, type = "PV-DM",   dim = 10,  iter = 3, min_count = 5, lr = 0.05, trace = TRUE)
+## Low-dimensional model using DM, low number of iterations, for speed and display purposes
+model <- paragraph2vec(x = x, type = "PV-DM",   dim = 5,   iter = 3,  min_count = 5, 
+                       lr = 0.05, threads = 1, trace = TRUE)
 ```
 
 ```
-## 2020-12-03 17:06:09.000000 Start iteration 1/3, alpha: 0.05
-## 2020-12-03 17:06:09.000000 Start iteration 2/3, alpha: 0.0341714
-## 2020-12-03 17:06:10.000000 Start iteration 3/3, alpha: 0.0175048
-## 2020-12-03 17:06:11.000000 Closed all threads, normalising & WMD
+## 2020-12-03 17:30:15.000000 Start iteration 1/3, alpha: 0.05
+## 2020-12-03 17:30:16.000000 Start iteration 2/3, alpha: 0.0341714
+## 2020-12-03 17:30:17.000000 Start iteration 3/3, alpha: 0.0175048
+## 2020-12-03 17:30:18.000000 Closed all threads, normalising & WMD
 ```
 
 ```r
@@ -74,13 +76,13 @@ str(model)
 ## List of 3
 ##  $ model  :<externalptr> 
 ##  $ data   :List of 4
-##   ..$ file        : chr "C:\\Users\\Jan\\AppData\\Local\\Temp\\Rtmp6jFM4m\\textspace_267420af3ac1.txt"
+##   ..$ file        : chr "C:\\Users\\Jan\\AppData\\Local\\Temp\\RtmpUvcYMc\\textspace_1a9c2457fb4.txt"
 ##   ..$ n           : num 170469
 ##   ..$ n_vocabulary: num 3867
 ##   ..$ n_docs      : num 1000
 ##  $ control:List of 9
 ##   ..$ min_count: int 5
-##   ..$ dim      : int 10
+##   ..$ dim      : int 5
 ##   ..$ window   : int 5
 ##   ..$ iter     : int 3
 ##   ..$ lr       : num 0.05
@@ -115,14 +117,10 @@ embedding
 ```
 
 ```
-##               [,1]       [,2]        [,3]       [,4]       [,5]      [,6]       [,7]
-## doc_1  -0.10881532 0.32416388  0.33861214 0.01631202 0.03534754 0.5763896 0.24190600
-## doc_10 -0.02595693 0.03413998 -0.00917869 0.14642672 0.10451418 0.5163934 0.02648479
-## doc_3  -0.07090236 0.25194123  0.12450245 0.01708808 0.02504584 0.5618929 0.19300759
-##             [,8]       [,9]     [,10]
-## doc_1  0.2812232 0.01017835 0.5449494
-## doc_10 0.7123029 0.24042067 0.3649264
-## doc_3  0.7150563 0.06970122 0.2143338
+##              [,1]      [,2]       [,3]        [,4]        [,5]
+## doc_1  0.09160496 0.5503142 -0.5195833 0.162630379 -0.62637627
+## doc_10 0.43539885 0.1009961 -0.8531511 0.266749799  0.03471836
+## doc_3  0.59375095 0.3877517 -0.6868675 0.002579026 -0.15910600
 ```
 
 -  Get similar documents or words when providing sentences, documents or words
@@ -136,19 +134,19 @@ nn
 ```
 ## [[1]]
 ##      term1   term2 similarity rank
-## 1 proximus    hoog  0.9976739    1
-## 2 proximus terecht  0.9975066    2
-## 3 proximus    zien  0.9967171    3
-## 4 proximus   niets  0.9962333    4
-## 5 proximus   klopt  0.9961292    5
+## 1 proximus   neemt  0.9994797    1
+## 2 proximus plaatse  0.9994527    2
+## 3 proximus     ver  0.9993714    3
+## 4 proximus  gratis  0.9992922    4
+## 5 proximus hiermee  0.9992417    5
 ## 
 ## [[2]]
-##    term1                term2 similarity rank
-## 1 koning            overigens  0.9933216    1
-## 2 koning          veiligheids  0.9891399    2
-## 3 koning veiligheidsproblemen  0.9884729    3
-## 4 koning             inhouden  0.9877813    4
-## 5 koning                  sms  0.9876047    5
+##    term1        term2 similarity rank
+## 1 koning      pleiten  0.9984228    1
+## 2 koning     ongeacht  0.9983451    2
+## 3 koning pensionering  0.9982112    3
+## 4 koning    profielen  0.9981233    4
+## 5 koning    beschermd  0.9978001    5
 ```
 
 ```r
@@ -159,19 +157,19 @@ nn
 ```
 ## [[1]]
 ##      term1   term2 similarity rank
-## 1 proximus doc_651  0.9971943    1
-## 2 proximus doc_304  0.9949394    2
-## 3 proximus doc_175  0.9948298    3
-## 4 proximus doc_358  0.9941241    4
-## 5 proximus doc_186  0.9939036    5
+## 1 proximus  doc_77  0.9989672    1
+## 2 proximus doc_263  0.9989251    2
+## 3 proximus doc_260  0.9982057    3
+## 4 proximus doc_344  0.9980863    4
+## 5 proximus doc_408  0.9979483    5
 ## 
 ## [[2]]
 ##    term1   term2 similarity rank
-## 1 koning doc_671  0.9859451    1
-## 2 koning doc_927  0.9848874    2
-## 3 koning doc_465  0.9848418    3
-## 4 koning doc_785  0.9841288    4
-## 5 koning doc_789  0.9830481    5
+## 1 koning doc_553  0.9980003    1
+## 2 koning doc_477  0.9964797    2
+## 3 koning doc_658  0.9955103    3
+## 4 koning  doc_99  0.9953933    4
+## 5 koning doc_163  0.9953347    5
 ```
 
 ```r
@@ -182,19 +180,19 @@ nn
 ```
 ## [[1]]
 ##     term1   term2 similarity rank
-## 1 doc_198 doc_246  0.9990234    1
-## 2 doc_198 doc_131  0.9989155    2
-## 3 doc_198 doc_239  0.9981164    3
-## 4 doc_198 doc_336  0.9980597    4
-## 5 doc_198 doc_240  0.9979458    5
+## 1 doc_198 doc_882  0.9992993    1
+## 2 doc_198 doc_709  0.9990637    2
+## 3 doc_198 doc_122  0.9989671    3
+## 4 doc_198 doc_121  0.9988763    4
+## 5 doc_198 doc_569  0.9988336    5
 ## 
 ## [[2]]
 ##     term1   term2 similarity rank
-## 1 doc_285 doc_376  0.9937388    1
-## 2 doc_285 doc_807  0.9899727    2
-## 3 doc_285 doc_790  0.9890974    3
-## 4 doc_285 doc_383  0.9877238    4
-## 5 doc_285 doc_520  0.9876296    5
+## 1 doc_285 doc_722  0.9988106    1
+## 2 doc_285 doc_467  0.9977189    2
+## 3 doc_285 doc_250  0.9976925    3
+## 4 doc_285 doc_174  0.9975280    4
+## 5 doc_285 doc_294  0.9968556    5
 ```
 
 ```r
@@ -208,19 +206,19 @@ nn
 ```
 ## $sent1
 ##   term1   term2 similarity rank
-## 1 sent1 doc_273  0.9206215    1
-## 2 sent1 doc_132  0.9196534    2
-## 3 sent1 doc_764  0.9190332    3
-## 4 sent1 doc_841  0.9003837    4
-## 5 sent1 doc_550  0.8987818    5
+## 1 sent1 doc_980  0.9784521    1
+## 2 sent1 doc_758  0.9678799    2
+## 3 sent1 doc_806  0.9547009    3
+## 4 sent1 doc_764  0.9544759    4
+## 5 sent1 doc_842  0.9529226    5
 ## 
 ## $sent2
 ##   term1   term2 similarity rank
-## 1 sent2 doc_273  0.9448744    1
-## 2 sent2 doc_764  0.9415252    2
-## 3 sent2 doc_946  0.9323609    3
-## 4 sent2 doc_994  0.9285443    4
-## 5 sent2 doc_766  0.9274857    5
+## 1 sent2 doc_842  0.9873239    1
+## 2 sent2 doc_764  0.9832168    2
+## 3 sent2 doc_564  0.9739662    3
+## 4 sent2 doc_980  0.9675324    4
+## 5 sent2 doc_542  0.9622889    5
 ```
 
 ```r
