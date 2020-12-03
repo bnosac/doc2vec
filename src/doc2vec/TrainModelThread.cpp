@@ -80,12 +80,13 @@ void TrainModelThread::updateLR()
     fflush(stdout);
     */
     if(m_doc2vec->m_trace > 1){
-      printf("%cAlpha: %f  Progress: %.2f%%  Words/sec: %.2fk  ", 13, m_doc2vec->m_alpha,
+      Rprintf("%cAlpha: %f  Progress: %.2f%%  Words/sec: %.2fk  ", 13, m_doc2vec->m_alpha,
              m_doc2vec->m_word_count_actual / (real)(m_doc2vec->m_iter * train_words + 1) * 100,
              m_doc2vec->m_word_count_actual / ((real)(clock() - m_start + 1) / (real)CLOCKS_PER_SEC * 1000));
-      fflush(stdout);
+      //fflush(stdout);
+      R_FlushConsole();
     }
-    //R_FlushConsole();
+    
     m_doc2vec->m_alpha = m_doc2vec->m_start_alpha * (1 - m_doc2vec->m_word_count_actual / (real)(m_doc2vec->m_iter * train_words + 1));
     m_doc2vec->m_alpha = MAX(m_doc2vec->m_alpha, m_doc2vec->m_start_alpha * 0.0001);
   }
