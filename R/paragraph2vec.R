@@ -37,8 +37,9 @@
 #' @seealso \code{\link{predict.paragraph2vec}}, \code{\link{as.matrix.paragraph2vec}}
 #' @export
 #' @examples
-#' \dontshow{if(require(tokenizers.bpe))\{}
+#' \dontshow{if(require(tokenizers.bpe) & require(udpipe))\{}
 #' library(tokenizers.bpe)
+#' library(udpipe)
 #' ## Take data and standardise it a bit
 #' data(belgium_parliament, package = "tokenizers.bpe")
 #' str(belgium_parliament)
@@ -47,7 +48,7 @@
 #' x$text <- gsub("[^[:alpha:]]", " ", x$text)
 #' x$text <- gsub("[[:space:]]+", " ", x$text)
 #' x$text <- trimws(x$text)
-#' x$nwords <- sapply(strsplit(x$text, " "), length)
+#' x$nwords <- txt_count(x$text, pattern = " ")
 #' x <- subset(x, nwords < 1000 & nchar(text) > 0)
 #' 
 #' ## Build the model get word embeddings and nearest neighbours
@@ -122,11 +123,12 @@ paragraph2vec <- function(x,
 #' @seealso \code{\link{paragraph2vec}}, \code{\link{read.paragraph2vec}}
 #' @export
 #' @examples 
-#' \dontshow{if(require(tokenizers.bpe))\{}
+#' \dontshow{if(require(tokenizers.bpe) & require(udpipe))\{}
 #' library(tokenizers.bpe)
+#' library(udpipe)
 #' data(belgium_parliament, package = "tokenizers.bpe")
 #' x <- subset(belgium_parliament, language %in% "french")
-#' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
+#' x <- subset(x, nchar(text) > 0 & txt_count(text, pattern " ") < 1000)
 #' 
 #' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
 #' \donttest{
@@ -162,11 +164,12 @@ as.matrix.paragraph2vec_trained <- function(x, encoding='UTF-8', ...){
 #' @export
 #' @seealso \code{\link{paragraph2vec}}
 #' @examples 
-#' \dontshow{if(require(tokenizers.bpe))\{}
+#' \dontshow{if(require(tokenizers.bpe) & require(udpipe))\{}
 #' library(tokenizers.bpe)
+#' library(udpipe)
 #' data(belgium_parliament, package = "tokenizers.bpe")
 #' x <- subset(belgium_parliament, language %in% "french")
-#' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
+#' x <- subset(x, nchar(text) > 0 & txt_count(text, pattern " ") < 1000)
 #' 
 #' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
 #' \donttest{
@@ -205,11 +208,12 @@ write.paragraph2vec <- function(x, file){
 #' }
 #' @export
 #' @examples 
-#' \dontshow{if(require(tokenizers.bpe))\{}
+#' \dontshow{if(require(tokenizers.bpe) & require(udpipe))\{}
 #' library(tokenizers.bpe)
+#' library(udpipe)
 #' data(belgium_parliament, package = "tokenizers.bpe")
 #' x <- subset(belgium_parliament, language %in% "french")
-#' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
+#' x <- subset(x, nchar(text) > 0 & txt_count(text, pattern " ") < 1000)
 #' 
 #' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
 #' \donttest{
@@ -291,18 +295,18 @@ summary.paragraph2vec_trained <- function(object, type = "vocabulary", which = c
 #' @seealso \code{\link{paragraph2vec}}, \code{\link{read.paragraph2vec}}
 #' @export
 #' @examples 
-#' \dontshow{if(require(tokenizers.bpe))\{}
-#' ## Get data + basic data preparation
+#' \dontshow{if(require(tokenizers.bpe) & require(udpipe))\{}
 #' library(tokenizers.bpe)
+#' library(udpipe)
 #' data(belgium_parliament, package = "tokenizers.bpe")
 #' x <- belgium_parliament
 #' x <- subset(x, language %in% "dutch")
-#' x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
+#' x <- subset(x, nchar(text) > 0 & txt_count(text, pattern " ") < 1000)
+#' x$doc_id <- sprintf("doc_%s", 1:nrow(x))
 #' x$text   <- tolower(x$text)
 #' x$text   <- gsub("[^[:alpha:]]", " ", x$text)
 #' x$text   <- gsub("[[:space:]]+", " ", x$text)
 #' x$text   <- trimws(x$text)
-#' x$doc_id <- sprintf("doc_%s", 1:nrow(x))
 #' 
 #' ## Build model
 #' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)

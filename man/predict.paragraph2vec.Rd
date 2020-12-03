@@ -58,18 +58,18 @@ Use the paragraph2vec model to
 }
 }
 \examples{
-\dontshow{if(require(tokenizers.bpe))\{}
-## Get data + basic data preparation
+\dontshow{if(require(tokenizers.bpe) & require(udpipe))\{}
 library(tokenizers.bpe)
+library(udpipe)
 data(belgium_parliament, package = "tokenizers.bpe")
 x <- belgium_parliament
 x <- subset(x, language \%in\% "dutch")
-x <- subset(x, nchar(text) > 0 & nchar(text) < 1000)
+x <- subset(x, nchar(text) > 0 & txt_count(text, pattern " ") < 1000)
+x$doc_id <- sprintf("doc_\%s", 1:nrow(x))
 x$text   <- tolower(x$text)
 x$text   <- gsub("[^[:alpha:]]", " ", x$text)
 x$text   <- gsub("[[:space:]]+", " ", x$text)
 x$text   <- trimws(x$text)
-x$doc_id <- sprintf("doc_\%s", 1:nrow(x))
 
 ## Build model
 model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
