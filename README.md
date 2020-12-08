@@ -1,6 +1,6 @@
 # doc2vec 
 
-This repository contains an R package allowing to build `Paragraph Vector` models also known as `doc2vec`. You can train the distributed memory ('PV-DM') and the distributed bag of words ('PV-DBOW') models. 
+This repository contains an R package allowing to build `Paragraph Vector` models also known as `doc2vec` models. You can train the distributed memory ('PV-DM') and the distributed bag of words ('PV-DBOW') models. 
 
 - It is based on the paper *Distributed Representations of Sentences and Documents* [[Mikolov et al.](https://arxiv.org/pdf/1405.4053.pdf)]
 - This R package is an Rcpp wrapper around https://github.com/hiyijian/doc2vec
@@ -26,7 +26,7 @@ help(package = "doc2vec")
 
 - Take some data and standardise it a bit. 
     - Make sure it has columns doc_id and text 
-    - Make sure that each text has less than 1000 words
+    - Make sure that each text has less than 1000 words (a word is considered separated by a single space)
     - Make sure that each text does not contain newline symbols 
 
 
@@ -37,7 +37,7 @@ library(udpipe)
 data(belgium_parliament, package = "tokenizers.bpe")
 x <- subset(belgium_parliament, language %in% "dutch")
 x <- data.frame(doc_id = sprintf("doc_%s", 1:nrow(x)), 
-                text = x$text, 
+                text   = x$text, 
                 stringsAsFactors = FALSE)
 x$text   <- tolower(x$text)
 x$text   <- gsub("[^[:alpha:]]", " ", x$text)
@@ -67,7 +67,7 @@ str(model)
 ## List of 3
 ##  $ model  :<externalptr> 
 ##  $ data   :List of 4
-##   ..$ file        : chr "C:\\Users\\Jan\\AppData\\Local\\Temp\\RtmpApjuPd\\textspace_1ef0215835c3.txt"
+##   ..$ file        : chr "C:\\Users\\Jan\\AppData\\Local\\Temp\\RtmpApjuPd\\textspace_1ef05c50176.txt"
 ##   ..$ n           : num 170469
 ##   ..$ n_vocabulary: num 3867
 ##   ..$ n_docs      : num 1000
