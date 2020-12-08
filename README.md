@@ -33,6 +33,7 @@ help(package = "doc2vec")
 ```r
 library(doc2vec)
 library(tokenizers.bpe)
+library(udpipe)
 data(belgium_parliament, package = "tokenizers.bpe")
 x <- subset(belgium_parliament, language %in% "dutch")
 x <- data.frame(doc_id = sprintf("doc_%s", 1:nrow(x)), 
@@ -42,8 +43,8 @@ x$text   <- tolower(x$text)
 x$text   <- gsub("[^[:alpha:]]", " ", x$text)
 x$text   <- gsub("[[:space:]]+", " ", x$text)
 x$text   <- trimws(x$text)
-x$nwords <- sapply(strsplit(x$text, " "), FUN = length)
-x <- subset(x, nwords < 1000 & nchar(text) > 0)
+x$nwords <- txt_count(x$text, pattern = " ")
+x        <- subset(x, nwords < 1000 & nchar(text) > 0)
 ```
 
 -  Build the model 
@@ -58,17 +59,7 @@ model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 100, iter = 20, min_count 
 ```r
 ## Low-dimensional model using DM, low number of iterations, for speed and display purposes
 model <- paragraph2vec(x = x, type = "PV-DM",   dim = 5,   iter = 3,  min_count = 5, 
-                       lr = 0.05, threads = 1, trace = TRUE)
-```
-
-```
-## 2020-12-03 17:30:15.000000 Start iteration 1/3, alpha: 0.05
-## 2020-12-03 17:30:16.000000 Start iteration 2/3, alpha: 0.0341714
-## 2020-12-03 17:30:17.000000 Start iteration 3/3, alpha: 0.0175048
-## 2020-12-03 17:30:18.000000 Closed all threads, normalising & WMD
-```
-
-```r
+                       lr = 0.05, threads = 1)
 str(model)
 ```
 
@@ -76,7 +67,7 @@ str(model)
 ## List of 3
 ##  $ model  :<externalptr> 
 ##  $ data   :List of 4
-##   ..$ file        : chr "C:\\Users\\Jan\\AppData\\Local\\Temp\\RtmpUvcYMc\\textspace_1a9c2457fb4.txt"
+##   ..$ file        : chr "C:\\Users\\Jan\\AppData\\Local\\Temp\\RtmpApjuPd\\textspace_1ef0215835c3.txt"
 ##   ..$ n           : num 170469
 ##   ..$ n_vocabulary: num 3867
 ##   ..$ n_docs      : num 1000
