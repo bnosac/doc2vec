@@ -22,7 +22,7 @@
 #' @param sample threshold for occurrence of words. Defaults to 0.001
 #' @param min_count integer indicating the number of time a word should occur to be considered as part of the training vocabulary. Defaults to 5.
 #' @param threads number of CPU threads to use. Defaults to 1.
-#' @param trace logical indicating to show progress. Defaults to FALSE.
+#' @param trace logical indicating to show progress. Defaults to FALSE. Use this only if you started R with a C stack limit set to unlimited.
 #' @param encoding the encoding of \code{x} and \code{stopwords}. Defaults to 'UTF-8'. 
 #' Calculating the model always starts from files allowing to build a model on large corpora. The encoding argument 
 #' is passed on to \code{file} when writing \code{x} to hard disk in case you provided it as a data.frame. 
@@ -52,9 +52,9 @@
 #' x <- subset(x, nwords < 1000 & nchar(text) > 0)
 #' 
 #' ## Build the model get word embeddings and nearest neighbours
-#' model <- paragraph2vec(x = x, type = "PV-DM", dim = 15,  iter = 5)
+#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 15,  iter = 5)
 #' \donttest{
-#' model <- paragraph2vec(x = x, type = "PV-DBOW",   dim = 100, iter = 20)
+#' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 100, iter = 20)
 #' }
 #' str(model)
 #' embedding <- as.matrix(model, which = "words")
@@ -130,9 +130,9 @@ paragraph2vec <- function(x,
 #' x <- subset(belgium_parliament, language %in% "french")
 #' x <- subset(x, nchar(text) > 0 & txt_count(text, pattern = " ") < 1000)
 #' 
-#' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
+#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 15,  iter = 5)
 #' \donttest{
-#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
+#' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 100, iter = 20)
 #' }
 #' 
 #' embedding <- as.matrix(model, which = "docs")
@@ -171,9 +171,9 @@ as.matrix.paragraph2vec_trained <- function(x, encoding='UTF-8', ...){
 #' x <- subset(belgium_parliament, language %in% "french")
 #' x <- subset(x, nchar(text) > 0 & txt_count(text, pattern = " ") < 1000)
 #' 
-#' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
+#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 15,  iter = 5)
 #' \donttest{
-#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
+#' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 100, iter = 20)
 #' }
 #' 
 #' path <- "mymodel.bin"
@@ -215,9 +215,9 @@ write.paragraph2vec <- function(x, file){
 #' x <- subset(belgium_parliament, language %in% "french")
 #' x <- subset(x, nchar(text) > 0 & txt_count(text, pattern = " ") < 1000)
 #' 
-#' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
+#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 15,  iter = 5)
 #' \donttest{
-#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
+#' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 100, iter = 20)
 #' }
 #' 
 #' path <- "mymodel.bin"
@@ -309,9 +309,9 @@ summary.paragraph2vec_trained <- function(object, type = "vocabulary", which = c
 #' x$text   <- trimws(x$text)
 #' 
 #' ## Build model
-#' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
+#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 15,  iter = 5)
 #' \donttest{
-#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
+#' model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 100, iter = 20)
 #' }
 #' 
 #' sentences <- list(
