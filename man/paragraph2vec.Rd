@@ -86,7 +86,7 @@ x$text <- trimws(x$text)
 x$nwords <- txt_count(x$text, pattern = " ")
 x <- subset(x, nwords < 1000 & nchar(text) > 0)
 
-## Build the model get word embeddings and nearest neighbours
+## Build the model
 model <- paragraph2vec(x = x, type = "PV-DM",   dim = 15,  iter = 5)
 \donttest{
 model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 100, iter = 20)
