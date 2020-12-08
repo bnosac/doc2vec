@@ -25,9 +25,9 @@ data(belgium_parliament, package = "tokenizers.bpe")
 x <- subset(belgium_parliament, language \%in\% "french")
 x <- subset(x, nchar(text) > 0 & txt_count(text, pattern = " ") < 1000)
 
-model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 15,  iter = 5)
+model <- paragraph2vec(x = x, type = "PV-DM",   dim = 15,  iter = 5)
 \donttest{
-model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)
+model <- paragraph2vec(x = x, type = "PV-DBOW", dim = 100, iter = 20)
 }
 
 path <- "mymodel.bin"
