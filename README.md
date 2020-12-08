@@ -7,7 +7,7 @@ This repository contains an R package allowing to build `Paragraph Vector` model
 - The package allows one 
     - to train paragraph embeddings (also known as document embeddings) on character data or data in a text file
     - use the embeddings to find similar documents, paragraphs, sentences or words
-- Note. For getting word vectors in R: look at package https://github.com/bnosac/word2vec, details [here](https://www.bnosac.be/index.php/blog/100-word2vec-in-r), for Starspace embeddings: look at package https://github.com/bnosac/ruimtehol, details [here](https://cran.r-project.org/web/packages/ruimtehol/vignettes/ground-control-to-ruimtehol.pdf)
+- Note. For getting word vectors in R: look at package https://github.com/bnosac/word2vec, details [here](https://www.bnosac.be/index.php/blog/100-word2vec-in-r), for Starspace embeddings: look at package https://github.com/bnosac/ruimtehol, details [here](https://CRAN.R-project.org/package=ruimtehol/vignettes/ground-control-to-ruimtehol.pdf)
 
 ## Installation
 
@@ -61,7 +61,7 @@ str(model)
 ## List of 3
 ##  $ model  :<externalptr> 
 ##  $ data   :List of 4
-##   ..$ file        : chr "C:\\Users\\Jan\\AppData\\Local\\Temp\\Rtmpk9Npjg\\textspace_1c4432666686.txt"
+##   ..$ file        : chr "C:\\Users\\Jan\\AppData\\Local\\Temp\\Rtmpk9Npjg\\textspace_1c446bffa0e.txt"
 ##   ..$ n           : num 170469
 ##   ..$ n_vocabulary: num 3867
 ##   ..$ n_docs      : num 1000
@@ -117,10 +117,10 @@ embedding[, 1:4]
 ```
 
 ```
-##               [,1]        [,2]        [,3]        [,4]
-## doc_1  0.038523957 -0.14341952 -0.06087392 -0.01625664
-## doc_10 0.003298676 -0.04789201  0.06048679 -0.14829759
-## doc_3  0.030986091  0.08946659  0.02453904 -0.01900235
+##              [,1]        [,2]       [,3]        [,4]
+## doc_1  0.05721277 -0.10298843  0.1089350 -0.03075439
+## doc_10 0.09553983  0.05211980 -0.0513489 -0.11847925
+## doc_3  0.08008177 -0.03324692  0.1563442  0.06585038
 ```
 
 -  Get similar documents or words when providing sentences, documents or words
@@ -134,19 +134,19 @@ nn
 ```
 ## [[1]]
 ##      term1              term2 similarity rank
-## 1 proximus telefoontoestellen  0.5364115    1
-## 2 proximus            belfius  0.5292925    2
-## 3 proximus internetverbinding  0.5140554    3
-## 4 proximus                ceo  0.4961080    4
-## 5 proximus              fusie  0.4803250    5
+## 1 proximus telefoontoestellen  0.5357178    1
+## 2 proximus            belfius  0.5169221    2
+## 3 proximus                ceo  0.4839031    3
+## 4 proximus            klanten  0.4819543    4
+## 5 proximus               taal  0.4590944    5
 ## 
 ## [[2]]
-##    term1            term2 similarity rank
-## 1 koning       ministerie  0.5567209    1
-## 2 koning   verplaatsingen  0.5317563    2
-## 3 koning         grondwet  0.5118545    3
-## 4 koning         gedragen  0.4884593    4
-## 5 koning verantwoordelijk  0.4788159    5
+##    term1          term2 similarity rank
+## 1 koning     ministerie  0.5615162    1
+## 2 koning verplaatsingen  0.5484987    2
+## 3 koning        familie  0.4911003    3
+## 4 koning       grondwet  0.4871097    4
+## 5 koning       gedragen  0.4694150    5
 ```
 
 ```r
@@ -157,19 +157,19 @@ nn
 ```
 ## [[1]]
 ##      term1   term2 similarity rank
-## 1 proximus doc_105  0.7080573    1
-## 2 proximus doc_863  0.6275553    2
-## 3 proximus doc_186  0.5301130    3
-## 4 proximus doc_862  0.4656175    4
-## 5 proximus doc_620  0.4396312    5
+## 1 proximus doc_105  0.6684639    1
+## 2 proximus doc_863  0.5917463    2
+## 3 proximus doc_186  0.5233522    3
+## 4 proximus doc_620  0.4919243    4
+## 5 proximus doc_862  0.4619178    5
 ## 
 ## [[2]]
 ##    term1   term2 similarity rank
-## 1 koning  doc_44  0.6395732    1
-## 2 koning doc_583  0.5574296    2
-## 3 koning  doc_45  0.5361990    3
-## 4 koning doc_943  0.4225507    4
-## 5 koning doc_797  0.4086391    5
+## 1 koning  doc_44  0.6686417    1
+## 2 koning  doc_45  0.5616031    2
+## 3 koning doc_583  0.5379452    3
+## 4 koning doc_943  0.4855201    4
+## 5 koning doc_797  0.4573555    5
 ```
 
 ```r
@@ -180,19 +180,19 @@ nn
 ```
 ## [[1]]
 ##     term1   term2 similarity rank
-## 1 doc_198 doc_343  0.4947847    1
-## 2 doc_198 doc_899  0.4893836    2
-## 3 doc_198 doc_923  0.4850165    3
-## 4 doc_198 doc_708  0.4697377    4
-## 5 doc_198 doc_642  0.4622465    5
+## 1 doc_198 doc_343  0.5522854    1
+## 2 doc_198 doc_899  0.4902798    2
+## 3 doc_198 doc_983  0.4847047    3
+## 4 doc_198 doc_642  0.4829021    4
+## 5 doc_198 doc_336  0.4674844    5
 ## 
 ## [[2]]
 ##     term1   term2 similarity rank
-## 1 doc_285 doc_286  0.5537772    1
-## 2 doc_285 doc_319  0.5478524    2
-## 3 doc_285 doc_874  0.5095125    3
-## 4 doc_285 doc_113  0.4878533    4
-## 5 doc_285  doc_76  0.4863345    5
+## 1 doc_285 doc_319  0.5318567    1
+## 2 doc_285 doc_286  0.5100293    2
+## 3 doc_285 doc_113  0.5056069    3
+## 4 doc_285 doc_526  0.4840761    4
+## 5 doc_285 doc_488  0.4805686    5
 ```
 
 ```r
@@ -206,19 +206,19 @@ nn
 ```
 ## $sent1
 ##   term1   term2 similarity rank
-## 1 sent1 doc_742  0.4385398    1
-## 2 sent1 doc_776  0.4269895    2
-## 3 sent1 doc_740  0.4247892    3
-## 4 sent1 doc_206  0.4162723    4
-## 5 sent1 doc_509  0.4153925    5
+## 1 sent1 doc_742  0.4830917    1
+## 2 sent1 doc_151  0.4340138    2
+## 3 sent1 doc_825  0.4263285    3
+## 4 sent1 doc_740  0.4059283    4
+## 5 sent1 doc_776  0.4024554    5
 ## 
 ## $sent2
 ##   term1   term2 similarity rank
-## 1 sent2 doc_105  0.5738307    1
-## 2 sent2 doc_863  0.5229421    2
-## 3 sent2 doc_862  0.4981593    3
-## 4 sent2 doc_186  0.4873295    4
-## 5 sent2  doc_18  0.4671208    5
+## 1 sent2 doc_105  0.5497447    1
+## 2 sent2 doc_863  0.5061581    2
+## 3 sent2 doc_862  0.4973840    3
+## 4 sent2 doc_620  0.4793786    4
+## 5 sent2 doc_186  0.4755909    5
 ```
 
 ```r
