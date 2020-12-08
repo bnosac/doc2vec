@@ -92,9 +92,9 @@ std::vector<std::string> paragraph2vec_dictionary(SEXP ptr, std::string type = "
 
 
 // [[Rcpp::export]]
-Rcpp::DataFrame paragraph2vec_nearest(SEXP ptr, std::string x, std::size_t top_n = 10, std::string type = "doc2doc") {
+Rcpp::DataFrame paragraph2vec_nearest(SEXP ptr, std::string x, int top_n = 10, std::string type = "doc2doc") {
   Rcpp::XPtr<Doc2Vec> model(ptr);
-  knn_item_t knn_items[top_n];
+  knn_item_t knn_items[MAX_DOC2VEC_KNN_R];
   if(type == "doc2doc"){
     model->doc_knn_docs(x.c_str(), knn_items, top_n);
   }else if(type == "word2doc"){
@@ -114,6 +114,9 @@ Rcpp::DataFrame paragraph2vec_nearest(SEXP ptr, std::string x, std::size_t top_n
     distance.push_back(kv.similarity);
     r = r + 1;
     rank.push_back(r);
+    if(r >= top_n || r >= MAX_DOC2VEC_KNN_R) {
+      break;
+    }
   } 
   Rcpp::DataFrame out = Rcpp::DataFrame::create(
     Rcpp::Named("term1") = x,
@@ -126,7 +129,7 @@ Rcpp::DataFrame paragraph2vec_nearest(SEXP ptr, std::string x, std::size_t top_n
 }
 
 // [[Rcpp::export]]
-Rcpp::List paragraph2vec_nearest_sentence(SEXP ptr, Rcpp::List x, std::size_t top_n = 10) {
+Rcpp::List paragraph2vec_nearest_sentence(SEXP ptr, Rcpp::List x, int top_n = 10) {
   Rcpp::XPtr<Doc2Vec> model(ptr);
   real * infer_vector = NULL;
   //int errnr = posix_memalign((void **)&infer_vector, 128, model->dim() * sizeof(real));
@@ -146,7 +149,7 @@ Rcpp::List paragraph2vec_nearest_sentence(SEXP ptr, Rcpp::List x, std::size_t to
     }
     model->infer_doc(&doc, infer_vector);
     // Get closest docs to sentence
-    knn_item_t knn_items[top_n];
+    knn_item_t knn_items[MAX_DOC2VEC_KNN_R];
     model->sent_knn_docs(&doc, knn_items, top_n, infer_vector);
     // Collect result in data.frame
     std::vector<std::string> keys;
@@ -159,6 +162,9 @@ Rcpp::List paragraph2vec_nearest_sentence(SEXP ptr, Rcpp::List x, std::size_t to
       distance.push_back(kv.similarity);
       r = r + 1;
       rank.push_back(r);
+      if(r >= top_n || r >= MAX_DOC2VEC_KNN_R) {
+        break;
+      }
     } 
     Rcpp::DataFrame out = Rcpp::DataFrame::create(
       Rcpp::Named("term1") = Rcpp::as<std::string>(rownames_(i)),

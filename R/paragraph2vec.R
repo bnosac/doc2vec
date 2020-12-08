@@ -284,7 +284,7 @@ summary.paragraph2vec_trained <- function(object, type = "vocabulary", which = c
 #' \item{'doc2doc', 'word2doc', 'word2word', 'sent2doc' can be chosen if \code{type} is set to 'nearest' indicating to extract respectively
 #' the closest document to a document (doc2doc), the closest document to a word (word2doc), the closest word to a word (word2word) or the closest document to sentences (sent2doc).}
 #' }
-#' @param top_n show only the top n nearest neighbours. Defaults to 10. Only used for \code{type} 'nearest'.
+#' @param top_n show only the top n nearest neighbours. Defaults to 10, with a maximum value of 100. Only used for \code{type} 'nearest'.
 #' @param normalize logical indicating to normalize the embeddings. Defaults to \code{TRUE}. Only used for \code{type} 'embedding'.
 #' @param encoding set the encoding of the text elements to the specified encoding. Defaults to 'UTF-8'. 
 #' @param ... not used
@@ -350,6 +350,7 @@ predict.paragraph2vec <- function(object, newdata,
   type  <- match.arg(type)
   which <- match.arg(which)
   top_n <- as.integer(top_n)
+  stopifnot(top_n <= 100)
   if(type == "embedding"){
     stopifnot(which %in% c("docs", "words"))
     if(is.character(newdata)){

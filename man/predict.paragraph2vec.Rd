@@ -32,7 +32,7 @@ Defaults to 'nearest'.}
 the closest document to a document (doc2doc), the closest document to a word (word2doc), the closest word to a word (word2word) or the closest document to sentences (sent2doc).}
 }}
 
-\item{top_n}{show only the top n nearest neighbours. Defaults to 10. Only used for \code{type} 'nearest'.}
+\item{top_n}{show only the top n nearest neighbours. Defaults to 10, with a maximum value of 100. Only used for \code{type} 'nearest'.}
 
 \item{encoding}{set the encoding of the text elements to the specified encoding. Defaults to 'UTF-8'.}
 

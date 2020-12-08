@@ -62,28 +62,28 @@ BEGIN_RCPP
 END_RCPP
 }
 // paragraph2vec_nearest
-Rcpp::DataFrame paragraph2vec_nearest(SEXP ptr, std::string x, std::size_t top_n, std::string type);
+Rcpp::DataFrame paragraph2vec_nearest(SEXP ptr, std::string x, int top_n, std::string type);
 RcppExport SEXP _doc2vec_paragraph2vec_nearest(SEXP ptrSEXP, SEXP xSEXP, SEXP top_nSEXP, SEXP typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
     Rcpp::traits::input_parameter< std::string >::type x(xSEXP);
-    Rcpp::traits::input_parameter< std::size_t >::type top_n(top_nSEXP);
+    Rcpp::traits::input_parameter< int >::type top_n(top_nSEXP);
     Rcpp::traits::input_parameter< std::string >::type type(typeSEXP);
     rcpp_result_gen = Rcpp::wrap(paragraph2vec_nearest(ptr, x, top_n, type));
     return rcpp_result_gen;
 END_RCPP
 }
 // paragraph2vec_nearest_sentence
-Rcpp::List paragraph2vec_nearest_sentence(SEXP ptr, Rcpp::List x, std::size_t top_n);
+Rcpp::List paragraph2vec_nearest_sentence(SEXP ptr, Rcpp::List x, int top_n);
 RcppExport SEXP _doc2vec_paragraph2vec_nearest_sentence(SEXP ptrSEXP, SEXP xSEXP, SEXP top_nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type x(xSEXP);
-    Rcpp::traits::input_parameter< std::size_t >::type top_n(top_nSEXP);
+    Rcpp::traits::input_parameter< int >::type top_n(top_nSEXP);
     rcpp_result_gen = Rcpp::wrap(paragraph2vec_nearest_sentence(ptr, x, top_n));
     return rcpp_result_gen;
 END_RCPP
