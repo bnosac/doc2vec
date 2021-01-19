@@ -13,6 +13,7 @@ TrainModelThread::TrainModelThread(long long id, Doc2Vec * doc2vec,
   m_doc2vec = doc2vec;
   m_corpus = sub_corpus;
   m_infer = infer;
+  m_doc_vector = NULL;
 
   m_start = clock();
   m_next_random = id;
