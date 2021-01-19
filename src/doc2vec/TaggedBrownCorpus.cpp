@@ -126,7 +126,7 @@ UnWeightedDocument::UnWeightedDocument(Doc2Vec * doc2vec, TaggedDocument * doc):
 
 UnWeightedDocument::~UnWeightedDocument()
 {
-  if(m_words_idx) delete [] m_words_idx;
+  delete [] m_words_idx;
 }
 
 void UnWeightedDocument::save(FILE * fout)
@@ -151,6 +151,7 @@ void UnWeightedDocument::load(FILE * fin)
 WeightedDocument::WeightedDocument(Doc2Vec * doc2vec, TaggedDocument * doc):
   UnWeightedDocument(doc2vec, doc), m_words_wei(NULL)
 {
+  m_words_wei = NULL;
   //int errnr;
   int a;
   long long word_idx;
@@ -158,6 +159,8 @@ WeightedDocument::WeightedDocument(Doc2Vec * doc2vec, TaggedDocument * doc):
   real sim, * doc_vector = NULL, * infer_vector = NULL;
   real sum = 0;
   std::map<long long, real> scores;
+  doc_vector = NULL;
+  infer_vector = NULL;
   //errnr = posix_memalign((void **)&doc_vector, 128, doc2vec->m_nn->m_dim * sizeof(real));
   doc_vector = (float *)_aligned_malloc(doc2vec->m_nn->m_dim * sizeof(real), 128);
   //errnr = posix_memalign((void **)&infer_vector, 128, doc2vec->m_nn->m_dim * sizeof(real));
@@ -185,5 +188,5 @@ WeightedDocument::WeightedDocument(Doc2Vec * doc2vec, TaggedDocument * doc):
 
 WeightedDocument::~WeightedDocument()
 {
-  if(m_words_wei) delete [] m_words_wei;
+  delete [] m_words_wei;
 }

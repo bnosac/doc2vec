@@ -27,8 +27,9 @@ TrainModelThread::TrainModelThread(long long id, Doc2Vec * doc2vec,
 
 TrainModelThread::~TrainModelThread()
 {
-  if(m_neu1) free(m_neu1);
-  if(m_neu1e) free(m_neu1e);
+  free(m_neu1);
+  free(m_neu1e);
+  delete m_corpus;
 }
 
 void TrainModelThread::train()

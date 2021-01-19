@@ -18,6 +18,14 @@ Vocabulary::Vocabulary(const char * train_file, int min_count, bool doctag) :
 
 Vocabulary::~Vocabulary()
 {
+  for(long long a = 0; a < m_vocab_size; a++){
+    free(m_vocab[a].word);
+    m_vocab[a].word = NULL;
+    free(m_vocab[a].point);
+    m_vocab[a].point = NULL;
+    free(m_vocab[a].code);
+    m_vocab[a].code = NULL;
+  }
   free(m_vocab);
   free(m_vocab_hash);
 }
@@ -93,6 +101,11 @@ long long Vocabulary::addWordToVocab(const char *word)
   {
     m_vocab_capacity += 1000;
     m_vocab = (struct vocab_word_t *)realloc(m_vocab, m_vocab_capacity * sizeof(struct vocab_word_t));
+    for(long long a = m_vocab_size+1; a < m_vocab_capacity; a++){
+      m_vocab[a].word = NULL;
+      m_vocab[a].point = NULL;
+      m_vocab[a].code = NULL;
+    }
   }
   hash = getWordHash(word);
   while (m_vocab_hash[hash] != -1) hash = (hash + 1) % vocab_hash_size;
@@ -119,6 +132,10 @@ void Vocabulary::sortVocab()
       m_vocab_size--;
       free(m_vocab[m_vocab_size].word);
       m_vocab[m_vocab_size].word = NULL;
+      free(m_vocab[m_vocab_size].point);
+      m_vocab[m_vocab_size].point = NULL;
+      free(m_vocab[m_vocab_size].code);
+      m_vocab[m_vocab_size].code = NULL;
     }
     else
     {
