@@ -6,7 +6,7 @@
 class TrainModelThread;
 class NN;
 class Vocabulary;
-class WMD;
+//class WMD;
 class TaggedBrownCorpus;
 class TaggedDocument;
 struct knn_item_t;
@@ -14,7 +14,7 @@ struct knn_item_t;
 class Doc2Vec
 {
 friend class TrainModelThread;
-friend class WMD;
+//friend class WMD;
 friend class UnWeightedDocument;
 friend class WeightedDocument;
 public:
@@ -30,7 +30,7 @@ public:
   Vocabulary* wvocab();
   Vocabulary* dvocab();
   NN * nn();
-  WMD * wmd();
+  //WMD * wmd();
 
 public:
   real doc_likelihood(TaggedDocument * doc, int skip = -1);
@@ -59,7 +59,7 @@ private:
   Vocabulary * m_word_vocab;
   Vocabulary * m_doc_vocab;
   NN * m_nn;
-  WMD * m_wmd;
+  //WMD * m_wmd;
   int m_cbow;
   int m_hs;
   int m_negtive;

@@ -3,7 +3,7 @@
 #include "Doc2Vec.h"
 #include "NN.h"
 #include "Vocab.h"
-#include "WMD.h"
+//#include "WMD.h"
 #include "TrainModelThread.h"
 #include "TaggedBrownCorpus.h"
 
@@ -17,7 +17,7 @@ void * trainModelThread(void * params)
 }
 
 /////==============================DOC2VEC========================
-Doc2Vec::Doc2Vec(): m_word_vocab(NULL), m_doc_vocab(NULL), m_nn(NULL), m_wmd(NULL),
+Doc2Vec::Doc2Vec(): m_word_vocab(NULL), m_doc_vocab(NULL), m_nn(NULL), //m_wmd(NULL),
   m_brown_corpus(NULL), m_expTable(NULL), m_negtive_sample_table(NULL)
 {
   initExpTable();
@@ -28,7 +28,7 @@ Doc2Vec::~Doc2Vec()
   if(m_word_vocab) delete m_word_vocab;
   if(m_doc_vocab) delete m_doc_vocab;
   if(m_nn) delete m_nn;
-  if(m_wmd) delete m_wmd;
+  //if(m_wmd) delete m_wmd;
   if(m_brown_corpus) delete m_brown_corpus;
   if(m_expTable) free(m_expTable);
   if(m_negtive_sample_table) free(m_negtive_sample_table);
@@ -99,11 +99,11 @@ void Doc2Vec::train(const char * train_file,
   free(pt);
   if(m_trace > 0){
     std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    Rcpp::Rcout << Rcpp::as<Rcpp::Datetime>(Rcpp::wrap(t)) << " Closed all threads, normalising & WMD" << "\n";     
+    Rcpp::Rcout << Rcpp::as<Rcpp::Datetime>(Rcpp::wrap(t)) << " Closed all threads, normalising" << "\n";     
   }
   m_nn->norm();
-  m_wmd = new WMD(this);
-  m_wmd->train();
+  //m_wmd = new WMD(this);
+  //m_wmd->train();
 }
 
 void Doc2Vec::initTrainModelThreads(const char * train_file, int threads, int iter)
@@ -282,7 +282,7 @@ void Doc2Vec::save(FILE * fout)
   fwrite(&m_start_alpha, sizeof(real), 1, fout);
   fwrite(&m_sample, sizeof(real), 1, fout);
   fwrite(&m_iter, sizeof(int), 1, fout);
-  m_wmd->save(fout);
+  //m_wmd->save(fout);
 }
 
 void Doc2Vec::load(FILE * fin)
@@ -304,12 +304,12 @@ void Doc2Vec::load(FILE * fin)
   if(errnr <= 0) Rcpp::stop("fread failed");
   initNegTable();
   m_nn->norm();
-  m_wmd = new WMD(this);
-  m_wmd->load(fin);
+  //m_wmd = new WMD(this);
+  //m_wmd->load(fin);
 }
 
 long long Doc2Vec::dim() {return m_nn->m_dim;}
-WMD * Doc2Vec::wmd() {return m_wmd;}
+//WMD * Doc2Vec::wmd() {return m_wmd;}
 Vocabulary* Doc2Vec::wvocab() {return m_word_vocab;}
 Vocabulary* Doc2Vec::dvocab() {return m_doc_vocab;}
 NN * Doc2Vec::nn() {return m_nn;}
