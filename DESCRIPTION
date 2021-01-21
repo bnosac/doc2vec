@@ -18,4 +18,4 @@ RoxygenNote: 7.1.1
 Depends: R (>= 2.10)
 Imports: Rcpp (>= 0.11.5), stats
 LinkingTo: Rcpp
-Suggests: tokenizers.bpe, udpipe (>= 0.8.4)
+Suggests: tokenizers.bpe

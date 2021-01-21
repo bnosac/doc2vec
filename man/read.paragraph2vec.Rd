@@ -21,12 +21,11 @@ an object of class paragraph2vec which is a list with elements
 Read a binary paragraph2vec model from disk
 }
 \examples{
-\dontshow{if(require(tokenizers.bpe) & require(udpipe))\{}
+\dontshow{if(require(tokenizers.bpe))\{}
 library(tokenizers.bpe)
-library(udpipe)
 data(belgium_parliament, package = "tokenizers.bpe")
 x <- subset(belgium_parliament, language \%in\% "french")
-x <- subset(x, nchar(text) > 0 & txt_count(text, pattern = " ") < 1000)
+x <- subset(x, nchar(text) > 0 & txt_count_words(text) < 1000)
 
 \donttest{
 model <- paragraph2vec(x = x, type = "PV-DM",   dim = 100, iter = 20)

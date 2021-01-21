@@ -72,9 +72,8 @@ The model is an extension to the word2vec algorithm,
 where an additional vector for every paragraph is added directly in the training.
 }
 \examples{
-\dontshow{if(require(tokenizers.bpe) & require(udpipe))\{}
+\dontshow{if(require(tokenizers.bpe))\{}
 library(tokenizers.bpe)
-library(udpipe)
 ## Take data and standardise it a bit
 data(belgium_parliament, package = "tokenizers.bpe")
 str(belgium_parliament)
@@ -83,7 +82,7 @@ x$text   <- tolower(x$text)
 x$text   <- gsub("[^[:alpha:]]", " ", x$text)
 x$text   <- gsub("[[:space:]]+", " ", x$text)
 x$text   <- trimws(x$text)
-x$nwords <- txt_count(x$text, pattern = " ")
+x$nwords <- txt_count_words(x$text)
 x <- subset(x, nwords < 1000 & nchar(text) > 0)
 
 ## Build the model

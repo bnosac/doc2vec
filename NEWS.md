@@ -3,6 +3,7 @@
 - Fixes for valgrind R CMD checks 
     - Fixes for destructors of Vocabulary
     - Remove WMD
+- Added txt_count_words and removed Suggests dependency of udpipe
 
 ## CHANGES IN doc2vec VERSION 0.1.0
 
