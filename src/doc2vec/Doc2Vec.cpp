@@ -23,21 +23,72 @@ Doc2Vec::Doc2Vec(): m_word_vocab(NULL), m_doc_vocab(NULL), m_nn(NULL), //m_wmd(N
   initExpTable();
 }
 
+Doc2Vec::Doc2Vec(const char * train_file,
+                 int dim, int cbow, int hs, int negtive,
+                 int iter, int window,
+                 real alpha, real sample,
+                 int min_count, int threads, int trace){
+  m_cbow = cbow;
+  m_hs = hs;
+  m_negtive = negtive;
+  m_window = window;
+  m_start_alpha = alpha;
+  m_sample = sample;
+  m_iter = iter;
+  m_trace = trace;
+  m_alpha = alpha;
+  m_word_count_actual = 0;
+  m_word_vocab = new Vocabulary(train_file, min_count);
+  m_doc_vocab = new Vocabulary(train_file, 1, true);
+  m_nn = new NN(m_word_vocab->m_vocab_size, m_doc_vocab->m_vocab_size, dim, hs, negtive);
+  m_brown_corpus = new TaggedBrownCorpus(train_file);
+  m_expTable = NULL;
+  m_negtive_sample_table = NULL;
+  // similar as initExpTable but using calloc
+  m_expTable = (real *)calloc(1, (EXP_TABLE_SIZE + 1) * sizeof(real));
+  for (int i = 0; i < EXP_TABLE_SIZE; i++)
+  {
+    m_expTable[i] = exp((i / (real)EXP_TABLE_SIZE * 2 - 1) * MAX_EXP); // Precompute the exp() table
+    m_expTable[i] = m_expTable[i] / (m_expTable[i] + 1);                   // Precompute f(x) = x / (x + 1)
+  }
+  // similar as initNegTable but using calloc
+  int a, i;
+  long long train_words_pow = 0;
+  real d1, power = 0.75;
+  //m_negtive_sample_table = (int *)malloc(negtive_sample_table_size * sizeof(int));
+  m_negtive_sample_table = (int *)calloc(1, negtive_sample_table_size * sizeof(int));
+  for (a = 0; a < m_word_vocab->m_vocab_size; a++) train_words_pow += pow(m_word_vocab->m_vocab[a].cn, power);
+  i = 0;
+  d1 = pow(m_word_vocab->m_vocab[i].cn, power) / (real)train_words_pow;
+  for (a = 0; a < negtive_sample_table_size; a++) {
+    m_negtive_sample_table[a] = i;
+    if (a / (real)negtive_sample_table_size > d1) {
+      i++;
+      d1 += pow(m_word_vocab->m_vocab[i].cn, power) / (real)train_words_pow;
+    }
+    if (i >= m_word_vocab->m_vocab_size) i = m_word_vocab->m_vocab_size - 1;
+  }
+  // Initialise the threads
+  initTrainModelThreads(train_file, threads, iter);
+  
+}
+
 Doc2Vec::~Doc2Vec()
 {
-  if(m_word_vocab) delete m_word_vocab;
-  if(m_doc_vocab) delete m_doc_vocab;
-  if(m_nn) delete m_nn;
+  delete m_word_vocab;
+  delete m_doc_vocab;
+  delete m_nn;
   //if(m_wmd) delete m_wmd;
-  if(m_brown_corpus) delete m_brown_corpus;
-  if(m_expTable) free(m_expTable);
-  if(m_negtive_sample_table) free(m_negtive_sample_table);
-  for(size_t i =  0; i < m_trainModelThreads.size(); i++) delete m_trainModelThreads[i];
+  delete m_brown_corpus;
+  free(m_expTable);
+  free(m_negtive_sample_table);
+  //for(size_t i =  0; i < m_trainModelThreads.size(); i++) delete m_trainModelThreads[i];
 }
 
 void Doc2Vec::initExpTable()
 {
-  m_expTable = (real *)malloc((EXP_TABLE_SIZE + 1) * sizeof(real));
+  //m_expTable = (real *)malloc((EXP_TABLE_SIZE + 1) * sizeof(real));
+  m_expTable = (real *)calloc(1, (EXP_TABLE_SIZE + 1) * sizeof(real));
   for (int i = 0; i < EXP_TABLE_SIZE; i++)
   {
     m_expTable[i] = exp((i / (real)EXP_TABLE_SIZE * 2 - 1) * MAX_EXP); // Precompute the exp() table
@@ -50,7 +101,8 @@ void Doc2Vec::initNegTable()
   int a, i;
   long long train_words_pow = 0;
   real d1, power = 0.75;
-  m_negtive_sample_table = (int *)malloc(negtive_sample_table_size * sizeof(int));
+  //m_negtive_sample_table = (int *)malloc(negtive_sample_table_size * sizeof(int));
+  m_negtive_sample_table = (int *)calloc(1, negtive_sample_table_size * sizeof(int));
   for (a = 0; a < m_word_vocab->m_vocab_size; a++) train_words_pow += pow(m_word_vocab->m_vocab[a].cn, power);
   i = 0;
   d1 = pow(m_word_vocab->m_vocab[i].cn, power) / (real)train_words_pow;
@@ -62,6 +114,26 @@ void Doc2Vec::initNegTable()
     }
     if (i >= m_word_vocab->m_vocab_size) i = m_word_vocab->m_vocab_size - 1;
   }
+}
+
+void Doc2Vec::train()
+{
+  pthread_t *pt = (pthread_t *)malloc(m_trainModelThreads.size() * sizeof(pthread_t));
+  for(size_t a = 0; a < m_trainModelThreads.size(); a++) {
+    pthread_create(&pt[a], NULL, trainModelThread, (void *)m_trainModelThreads[a]);
+  }
+  for (size_t a = 0; a < m_trainModelThreads.size(); a++) pthread_join(pt[a], NULL);
+  if(m_trace > 0){
+    std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    Rcpp::Rcout << Rcpp::as<Rcpp::Datetime>(Rcpp::wrap(t)) << " Closed all threads, normalising" << "\n";     
+  }
+  for(size_t i =  0; i < m_trainModelThreads.size(); i++) delete m_trainModelThreads[i]->m_corpus;
+  for(size_t i =  0; i < m_trainModelThreads.size(); i++) delete m_trainModelThreads[i];
+  free(pt);
+  
+  m_nn->norm();
+  //m_wmd = new WMD(this);
+  //m_wmd->train();
 }
 
 void Doc2Vec::train(const char * train_file,

@@ -19,8 +19,14 @@ friend class UnWeightedDocument;
 friend class WeightedDocument;
 public:
   Doc2Vec();
+  Doc2Vec(const char * train_file,
+          int dim, int cbow, int hs, int negtive,
+          int iter, int window,
+          real alpha, real sample,
+          int min_count, int threads, int trace);
   ~Doc2Vec();
 public:
+  void train();
   void train(const char * train_file,
     int dim, int cbow, int hs, int negtive,
     int iter, int window,

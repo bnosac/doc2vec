@@ -30,7 +30,7 @@ TrainModelThread::~TrainModelThread()
 {
   free(m_neu1);
   free(m_neu1e);
-  delete m_corpus;
+  //delete m_corpus;
 }
 
 void TrainModelThread::train()
