@@ -1,12 +1,14 @@
 # doc2vec 
 
 This repository contains an R package allowing to build `Paragraph Vector` models also known as `doc2vec` models. You can train the distributed memory ('PV-DM') and the distributed bag of words ('PV-DBOW') models. 
+Next to that, it also allows to build a `top2vec` model allowing to cluster documents based on these embeddings.
 
-- It is based on the paper *Distributed Representations of Sentences and Documents* [[Mikolov et al.](https://arxiv.org/pdf/1405.4053.pdf)]
-- This R package is an Rcpp wrapper around https://github.com/hiyijian/doc2vec
+- doc2vec is based on the paper *Distributed Representations of Sentences and Documents* [[Mikolov et al.](https://arxiv.org/pdf/1405.4053.pdf) while top2vec is based on the paper *Distributed Representations of Topics* [Angelov](https://arxiv.org/abs/2008.09470]
+- The doc2vec part is an Rcpp wrapper around https://github.com/hiyijian/doc2vec
 - The package allows one 
     - to train paragraph embeddings (also known as document embeddings) on character data or data in a text file
     - use the embeddings to find similar documents, paragraphs, sentences or words
+    - cluster document embeddings using top2vec
 - Note. For getting word vectors in R: look at package https://github.com/bnosac/word2vec, details [here](https://www.bnosac.be/index.php/blog/100-word2vec-in-r), for Starspace embeddings: look at package https://github.com/bnosac/ruimtehol, details [here](https://CRAN.R-project.org/package=ruimtehol/vignettes/ground-control-to-ruimtehol.pdf)
 
 ## Installation
@@ -22,7 +24,7 @@ help(package = "doc2vec")
 ```
 
 
-## Example
+## Example on doc2vec
 
 - Take some data and standardise it a bit. 
     - Make sure it has columns doc_id and text 
@@ -225,6 +227,35 @@ nn
 sentences <- strsplit(setNames(x$text, x$doc_id), split = " ")
 nn <- predict(model, newdata = sentences, type = "nearest", which = "sent2doc", top_n = 5)
 ```
+
+## Example on top2vec
+
+
+```r
+library(doc2vec)
+library(word2vec)
+library(uwot)
+library(dbscan)
+data(be_parliament_2020, package = "doc2vec")
+x      <- data.frame(doc_id = be_parliament_2020$doc_id,
+                     text   = be_parliament_2020$text_nl,
+                     stringsAsFactors = FALSE)
+x$text <- txt_clean_word2vec(x$text)
+x      <- subset(x, txt_count_words(text) < 1000)
+
+d2v    <- paragraph2vec(x, type = "PV-DBOW", dim = 50, 
+                        lr = 0.05, iter = 10,
+                        window = 15, hs = TRUE, negative = 0,
+                        sample = 0.00001, min_count = 5, 
+                        threads = 1)
+model  <- top2vec(d2v, 
+                  control.dbscan = list(minPts = 50), 
+                  control.umap = list(n_neighbors = 15L, n_components = 3), umap = tumap, 
+                  trace = TRUE)
+info   <- summary(model, top_n = 7)
+info$topwords
+```
+
 
 
 ## Support in text mining

@@ -1,3 +1,7 @@
+## CHANGES IN doc2vec VERSION 0.2.0
+
+- Add top2vec semantic clustering algorithm
+
 ## CHANGES IN doc2vec VERSION 0.1.1
 
 - Fixes for valgrind R CMD checks 
