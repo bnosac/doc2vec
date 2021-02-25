@@ -3,7 +3,7 @@
 This repository contains an R package allowing to build `Paragraph Vector` models also known as `doc2vec` models. You can train the distributed memory ('PV-DM') and the distributed bag of words ('PV-DBOW') models. 
 Next to that, it also allows to build a `top2vec` model allowing to cluster documents based on these embeddings.
 
-- doc2vec is based on the paper *Distributed Representations of Sentences and Documents* [[Mikolov et al.](https://arxiv.org/pdf/1405.4053.pdf) while top2vec is based on the paper *Distributed Representations of Topics* [Angelov](https://arxiv.org/abs/2008.09470]
+- doc2vec is based on the paper *Distributed Representations of Sentences and Documents* [Mikolov et al.](https://arxiv.org/pdf/1405.4053.pdf) while top2vec is based on the paper *Distributed Representations of Topics* [Angelov](https://arxiv.org/abs/2008.09470)
 - The doc2vec part is an Rcpp wrapper around https://github.com/hiyijian/doc2vec
 - The package allows one 
     - to train paragraph embeddings (also known as document embeddings) on character data or data in a text file
