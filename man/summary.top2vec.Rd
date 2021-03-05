@@ -9,6 +9,7 @@
   type = "default",
   top_n = 10,
   embedding_words = object$embedding$words,
+  embedding_docs = object$embedding$docs,
   ...
 )
 }
@@ -20,6 +21,9 @@
 \item{top_n}{integer indicating to find the \code{top_n} most similar words to a topic}
 
 \item{embedding_words}{a matrix of word embeddings to limit the most similar words to. Defaults to 
+the embedding of words from the \code{object}}
+
+\item{embedding_docs}{a matrix of document embeddings to limit the most similar documents to. Defaults to 
 the embedding of words from the \code{object}}
 
 \item{...}{not used}

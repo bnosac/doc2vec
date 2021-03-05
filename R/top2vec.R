@@ -73,7 +73,7 @@ top2vec <- function(x,
                     trace = FALSE, ...){
   requireNamespace("uwot")
   requireNamespace("dbscan")
-  stopifnot(inherits(x, c("data.frame", "paragraph2vec", "paragraph2vec_trained", "matrix")))
+  stopifnot(inherits(x, c("data.frame", "paragraph2vec", "paragraph2vec_trained", "matrix", "list")))
   if(inherits(x, "data.frame")){
     stopifnot(all(c("doc_id", "text") %in% colnames(x)) && is.character(x$text))
     control.doc2vec$x <- x
@@ -166,11 +166,14 @@ update.top2vec <- function(object, type = c("umap", "hdbscan"),
 #' @param top_n integer indicating to find the \code{top_n} most similar words to a topic
 #' @param embedding_words a matrix of word embeddings to limit the most similar words to. Defaults to 
 #' the embedding of words from the \code{object}
+#' @param embedding_docs a matrix of document embeddings to limit the most similar documents to. Defaults to 
+#' the embedding of words from the \code{object}
 #' @param ... not used 
 #' @export
 #' @examples 
 #' # For an example, look at the documentation of ?top2vec
-summary.top2vec <- function(object, type = "default", top_n = 10, embedding_words = object$embedding$words, ...){
+summary.top2vec <- function(object, type = "default", top_n = 10, embedding_words = object$embedding$words, 
+                            embedding_docs = object$embedding$docs, ...){
   type <- match.arg(type)
   topic_idx       <- split(x = seq_along(object$dbscan$cluster), f = object$dbscan$cluster)
   topic_centroids <- lapply(topic_idx, FUN = function(i) colMeans(object$embedding$docs[i, , drop = FALSE]))
@@ -180,5 +183,10 @@ summary.top2vec <- function(object, type = "default", top_n = 10, embedding_word
     similarity <- doc2vec::paragraph2vec_similarity(y = embedding_words, x = topic, top_n = top_n)
     data.frame(term = similarity$term2, similarity = similarity$similarity, rank = similarity$rank, stringsAsFactors = FALSE)
   })
-  list(topwords = topwords, centroids = topic_centroids, medoids = topic_medoids)
+  topdocs <- lapply(topic_centroids, FUN = function(topic){
+    similarity <- doc2vec::paragraph2vec_similarity(y = embedding_docs, x = topic, top_n = top_n)
+    data.frame(doc_id = similarity$term2, similarity = similarity$similarity, rank = similarity$rank, stringsAsFactors = FALSE)
+  })
+  out <- structure(list(topwords = topwords, topdocs = topdocs, centroids = topic_centroids, medoids = topic_medoids), class = "t2v")
+  out
 }
