@@ -6,6 +6,7 @@
 \usage{
 top2vec(
   x,
+  data = data.frame(doc_id = character(), text = character(), stringsAsFactors = FALSE),
   control.umap = list(n_neighbors = 15L, n_components = 5L, metric = "cosine"),
   control.dbscan = list(minPts = 100L),
   control.doc2vec = list(),
@@ -18,6 +19,9 @@ top2vec(
 \item{x}{either an object returned by \code{\link[doc2vec]{paragraph2vec}} or a data.frame 
 with columns `doc_id` and `text` storing document ids and texts as character vectors or a matrix with document embeddings to cluster
 or a list with elements docs and words containing document embeddings to cluster and word embeddings for deriving topic summaries}
+
+\item{data}{optionally, a data.frame with columns `doc_id` and `text` representing documents. 
+This dataset is just stored, in order to extract the text of the most similar documents to a topic.}
 
 \item{control.umap}{a list of arguments to pass on to \code{\link[uwot]{umap}} for reducing the dimensionality of the embedding space}
 
@@ -39,6 +43,7 @@ an object of class \code{top2vec} which is a list with elements
 \item{doc2vec: a doc2vec model}
 \item{umap: a matrix of representations of the documents of \code{x}}
 \item{dbscan: the result of the hdbscan clustering}
+\item{data: a data.frame with columns doc_id and text}
 }
 }
 \description{
@@ -64,28 +69,33 @@ d2v    <- paragraph2vec(x, type = "PV-DBOW", dim = 50,
                         threads = 1)
 # write.paragraph2vec(d2v, "d2v.bin")
 # d2v    <- read.paragraph2vec("d2v.bin")
-model  <- top2vec(d2v, 
+model  <- top2vec(d2v, data = x,
                   control.dbscan = list(minPts = 50), 
                   control.umap = list(n_neighbors = 15L, n_components = 4), trace = TRUE)
-model  <- top2vec(d2v, 
+model  <- top2vec(d2v, data = x,
                   control.dbscan = list(minPts = 50), 
                   control.umap = list(n_neighbors = 15L, n_components = 3), umap = tumap, 
                   trace = TRUE)
                                   
 info   <- summary(model, top_n = 7)
 info$topwords
+info$topdocs
 
 ## Change the model: reduce doc2vec model to 2D
 model  <- update(model, type = "umap", 
                  n_neighbors = 100, n_components = 2, metric = "cosine", umap = tumap, 
                  trace = TRUE)
 info   <- summary(model, top_n = 7)
+data = x
 info$topwords
+info$topdocs
 
 ## Change the model: have minimum 200 points for the core elements in the hdbscan density
 model  <- update(model, type = "hdbscan", minPts = 200, trace = TRUE)
 info   <- summary(model, top_n = 7)
+data = x
 info$topwords
+info$topdocs
 }
 \dontshow{\} # End of main if statement running only if the required packages are installed}
 }

@@ -8,6 +8,7 @@
   object,
   type = "default",
   top_n = 10,
+  data = object$data,
   embedding_words = object$embedding$words,
   embedding_docs = object$embedding$docs,
   ...
@@ -19,6 +20,8 @@
 \item{type}{a character string with the type of summary information to extract. Currently not used}
 
 \item{top_n}{integer indicating to find the \code{top_n} most similar words to a topic}
+
+\item{data}{a data.frame with columns `doc_id` and `text` representing documents. For each topic, the function extracts the most similar documents.}
 
 \item{embedding_words}{a matrix of word embeddings to limit the most similar words to. Defaults to 
 the embedding of words from the \code{object}}
