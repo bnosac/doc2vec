@@ -1,6 +1,7 @@
 ## CHANGES IN doc2vec VERSION 0.2.0
 
 - Add top2vec semantic clustering algorithm
+- Allow transfer learning in paragraph2vec by passing on a pretrained set of word vectors to initialise the word embeddings with (no initialisation of the document embeddings)
 
 ## CHANGES IN doc2vec VERSION 0.1.1
 

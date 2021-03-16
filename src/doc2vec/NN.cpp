@@ -2,7 +2,7 @@
 #include "NN.h"
 
 NN::NN(long long vocab_size, long long corpus_size, long long dim,
-  int hs, int negtive):
+  int hs, int negtive, Rcpp::NumericMatrix embeddings, Rcpp::IntegerVector vocab_to_embedddings):
   m_hs(hs), m_negtive(negtive),
   m_syn0(NULL), m_dsyn0(NULL), m_syn1(NULL), m_syn1neg(NULL),
   m_vocab_size(vocab_size), m_corpus_size(corpus_size), m_dim(dim),
@@ -18,9 +18,19 @@ NN::NN(long long vocab_size, long long corpus_size, long long dim,
   //a = posix_memalign((void **)&m_dsyn0, 128, (long long)m_corpus_size * m_dim * sizeof(real));
   m_dsyn0 = (float *)_aligned_malloc((long long)m_corpus_size * m_dim * sizeof(real), 128);
   if (m_dsyn0 == NULL) {Rcpp::stop("Memory allocation failed\n"); }
-  for (a = 0; a < m_vocab_size; a++) for (b = 0; b < m_dim; b++) {
-    next_random = next_random * (unsigned long long)25214903917 + 11;
-    m_syn0[a * m_dim + b] = (((next_random & 0xFFFF) / (real)65536) - 0.5) / m_dim;
+  
+  Rcpp::LogicalVector is_predefined = !(Rcpp::is_na(vocab_to_embedddings));
+  for (a = 0; a < m_vocab_size; a++){
+    for (b = 0; b < m_dim; b++) {
+      next_random = next_random * (unsigned long long)25214903917 + 11;
+      m_syn0[a * m_dim + b] = (((next_random & 0xFFFF) / (real)65536) - 0.5) / m_dim;
+    }
+    // Use pretrained embeddings (e.g. transfer learning)
+    if(is_predefined[a]){
+      for (b = 0; b < m_dim; b++) {
+        m_syn0[a * m_dim + b] = (real)(embeddings(vocab_to_embedddings[a], b));
+      }
+    }
   }
   for (a = 0; a < m_corpus_size; a++) for (b = 0; b < m_dim; b++) {
     next_random = next_random * (unsigned long long)25214903917 + 11;

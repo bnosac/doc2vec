@@ -25,7 +25,7 @@ public:
     int dim, int cbow, int hs, int negtive,
     int iter, int window,
     real alpha, real sample,
-    int min_count, int threads, int trace);
+    int min_count, int threads, int trace, Rcpp::NumericMatrix embeddings);
   long long dim();
   Vocabulary* wvocab();
   Vocabulary* dvocab();

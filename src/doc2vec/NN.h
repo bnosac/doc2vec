@@ -6,7 +6,7 @@ class NN
 {
 public:
   NN() : m_syn0(NULL), m_dsyn0(NULL), m_syn1(NULL), m_syn1neg(NULL),m_syn0norm(NULL), m_dsyn0norm(NULL)  {}
-  NN(long long vocab_size, long long corpus_size, long long dim, int hs, int negtive);
+  NN(long long vocab_size, long long corpus_size, long long dim, int hs, int negtive, Rcpp::NumericMatrix embeddings, Rcpp::IntegerVector vocab_to_embedddings);
   ~NN();
 public:
   void save(FILE * fout);

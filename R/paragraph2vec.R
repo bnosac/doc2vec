@@ -25,6 +25,8 @@
 #' @param encoding the encoding of \code{x} and \code{stopwords}. Defaults to 'UTF-8'. 
 #' Calculating the model always starts from files allowing to build a model on large corpora. The encoding argument 
 #' is passed on to \code{file} when writing \code{x} to hard disk in case you provided it as a data.frame. 
+#' @param embeddings optionally a matrix with pretrained word embeddings which will be used to initialise the word embedding space with (transfer learning). 
+#' The rownames of this matrix should consist of words. Only words overlapping with the vocabulary extracted from \code{x} will be used. 
 #' @param ... further arguments passed on to the C++ function \code{paragraph2vec_train} - for expert use only
 #' @return an object of class \code{paragraph2vec_trained} which is a list with elements 
 #' \itemize{
@@ -36,7 +38,7 @@
 #' @seealso \code{\link{predict.paragraph2vec}}, \code{\link{as.matrix.paragraph2vec}}
 #' @export
 #' @examples
-#' \dontshow{if(require(tokenizers.bpe))\{}
+#' \dontshow{if(require(tokenizers.bpe) & require(word2vec))\{}
 #' library(tokenizers.bpe)
 #' ## Take data and standardise it a bit
 #' data(belgium_parliament, package = "tokenizers.bpe")
@@ -62,6 +64,18 @@
 #' ## Get vocabulary
 #' vocab <- summary(model, type = "vocabulary",  which = "docs")
 #' vocab <- summary(model, type = "vocabulary",  which = "words")
+#' 
+#' 
+#' ## Transfer learning proof of concept
+#' emb   <- matrix(rnorm(30), nrow = 2, dimnames = list(c("en", "met")))
+#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 15,  iter = 0, embeddings = emb)
+#' 
+#' ## Transfer learning using existing word embeddings
+#' library(word2vec)
+#' w2v   <- word2vec(x$text, dim = 50, type = "cbow", iter = 20, min_count = 5)
+#' emb   <- as.matrix(w2v)
+#' model <- paragraph2vec(x = x, dim = 50, type = "PV-DM", iter = 20, min_count = 5, 
+#'                        embeddings = emb)
 #' \dontshow{\} # End of main if statement running only if the required packages are installed}
 paragraph2vec <- function(x,
                      type = c("PV-DBOW", "PV-DM"),
@@ -69,7 +83,9 @@ paragraph2vec <- function(x,
                      iter = 5L, lr = 0.05, hs = FALSE, negative = 5L, sample = 0.001, min_count = 5L, 
                      threads = 1L,
                      encoding = "UTF-8",
+                     embeddings = matrix(nrow = 0, ncol = dim),
                      ...){
+  stopifnot(ncol(embeddings) == dim)
   type <- match.arg(type)
   if(is.character(x)){
     if(length(x) != 1){
@@ -100,7 +116,7 @@ paragraph2vec <- function(x,
   lr <- as.numeric(lr)
   # cbow = 0 = skip-gram                                             = PV-DBOW
   # cbow = 1 = continuous bag of words including vector of paragraph = PV-DM
-  model <- paragraph2vec_train(trainFile = file_train, 
+  model <- paragraph2vec_train(trainFile = file_train, embeddings = embeddings, 
                                size = dim, cbow = as.logical(type %in% "PV-DM"),
                                hs = hs, negative = negative, iterations = iter, window = window, alpha = lr, sample = sample,
                                min_count = min_count, threads = threads, ...)

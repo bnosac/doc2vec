@@ -17,6 +17,7 @@ paragraph2vec(
   min_count = 5L,
   threads = 1L,
   encoding = "UTF-8",
+  embeddings = matrix(nrow = 0, ncol = dim),
   ...
 )
 }
@@ -54,6 +55,9 @@ Defaults to 'PV-DBOW'.}
 Calculating the model always starts from files allowing to build a model on large corpora. The encoding argument 
 is passed on to \code{file} when writing \code{x} to hard disk in case you provided it as a data.frame.}
 
+\item{embeddings}{optionally a matrix with pretrained word embeddings which will be used to initialise the word embedding space with (transfer learning). 
+The rownames of this matrix should consist of words. Only words overlapping with the vocabulary extracted from \code{x} will be used.}
+
 \item{...}{further arguments passed on to the C++ function \code{paragraph2vec_train} - for expert use only}
 }
 \value{
@@ -72,7 +76,7 @@ The model is an extension to the word2vec algorithm,
 where an additional vector for every paragraph is added directly in the training.
 }
 \examples{
-\dontshow{if(require(tokenizers.bpe))\{}
+\dontshow{if(require(tokenizers.bpe) & require(word2vec))\{}
 library(tokenizers.bpe)
 ## Take data and standardise it a bit
 data(belgium_parliament, package = "tokenizers.bpe")
@@ -98,6 +102,18 @@ head(embedding)
 ## Get vocabulary
 vocab <- summary(model, type = "vocabulary",  which = "docs")
 vocab <- summary(model, type = "vocabulary",  which = "words")
+
+
+## Transfer learning proof of concept
+emb   <- matrix(rnorm(30), nrow = 2, dimnames = list(c("en", "met")))
+model <- paragraph2vec(x = x, type = "PV-DM",   dim = 15,  iter = 0, embeddings = emb)
+
+## Transfer learning using existing word embeddings
+library(word2vec)
+w2v   <- word2vec(x$text, dim = 50, type = "cbow", iter = 20, min_count = 5)
+emb   <- as.matrix(w2v)
+model <- paragraph2vec(x = x, dim = 50, type = "PV-DM", iter = 20, min_count = 5, 
+                       embeddings = emb)
 \dontshow{\} # End of main if statement running only if the required packages are installed}
 }
 \references{

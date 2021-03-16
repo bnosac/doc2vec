@@ -6,12 +6,13 @@
 using namespace Rcpp;
 
 // paragraph2vec_train
-Rcpp::List paragraph2vec_train(const char * trainFile, int size, int cbow, int hs, int negative, int iterations, int window, double alpha, double sample, int min_count, int threads, int trace);
-RcppExport SEXP _doc2vec_paragraph2vec_train(SEXP trainFileSEXP, SEXP sizeSEXP, SEXP cbowSEXP, SEXP hsSEXP, SEXP negativeSEXP, SEXP iterationsSEXP, SEXP windowSEXP, SEXP alphaSEXP, SEXP sampleSEXP, SEXP min_countSEXP, SEXP threadsSEXP, SEXP traceSEXP) {
+Rcpp::List paragraph2vec_train(const char * trainFile, Rcpp::NumericMatrix embeddings, int size, int cbow, int hs, int negative, int iterations, int window, double alpha, double sample, int min_count, int threads, int trace);
+RcppExport SEXP _doc2vec_paragraph2vec_train(SEXP trainFileSEXP, SEXP embeddingsSEXP, SEXP sizeSEXP, SEXP cbowSEXP, SEXP hsSEXP, SEXP negativeSEXP, SEXP iterationsSEXP, SEXP windowSEXP, SEXP alphaSEXP, SEXP sampleSEXP, SEXP min_countSEXP, SEXP threadsSEXP, SEXP traceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const char * >::type trainFile(trainFileSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type embeddings(embeddingsSEXP);
     Rcpp::traits::input_parameter< int >::type size(sizeSEXP);
     Rcpp::traits::input_parameter< int >::type cbow(cbowSEXP);
     Rcpp::traits::input_parameter< int >::type hs(hsSEXP);
@@ -23,7 +24,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type min_count(min_countSEXP);
     Rcpp::traits::input_parameter< int >::type threads(threadsSEXP);
     Rcpp::traits::input_parameter< int >::type trace(traceSEXP);
-    rcpp_result_gen = Rcpp::wrap(paragraph2vec_train(trainFile, size, cbow, hs, negative, iterations, window, alpha, sample, min_count, threads, trace));
+    rcpp_result_gen = Rcpp::wrap(paragraph2vec_train(trainFile, embeddings, size, cbow, hs, negative, iterations, window, alpha, sample, min_count, threads, trace));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -129,7 +130,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_doc2vec_paragraph2vec_train", (DL_FUNC) &_doc2vec_paragraph2vec_train, 12},
+    {"_doc2vec_paragraph2vec_train", (DL_FUNC) &_doc2vec_paragraph2vec_train, 13},
     {"_doc2vec_paragraph2vec_save_model", (DL_FUNC) &_doc2vec_paragraph2vec_save_model, 2},
     {"_doc2vec_paragraph2vec_load_model", (DL_FUNC) &_doc2vec_paragraph2vec_load_model, 1},
     {"_doc2vec_paragraph2vec_dictionary", (DL_FUNC) &_doc2vec_paragraph2vec_dictionary, 2},

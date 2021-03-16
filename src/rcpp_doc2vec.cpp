@@ -6,13 +6,12 @@
 #include "TaggedBrownCorpus.h"
 #include "common_define.h"
 // [[Rcpp::export]]
-Rcpp::List paragraph2vec_train(const char * trainFile, int size = 100, 
+Rcpp::List paragraph2vec_train(const char * trainFile, Rcpp::NumericMatrix embeddings, int size = 100, 
                                int cbow = 1, int hs = 0, int negative = 5, int iterations = 5, 
                                int window = 5, double alpha = 0.05, double sample = 0.001, int min_count = 5, int threads = 1,
                                int trace = 0) {
-  
   Rcpp::XPtr<Doc2Vec> model(new Doc2Vec(), true);
-  model->train(trainFile, size, cbow, hs, negative, iterations, window, alpha, sample, min_count, threads, trace);
+  model->train(trainFile, size, cbow, hs, negative, iterations, window, alpha, sample, min_count, threads, trace, embeddings);
   
   Vocabulary* voc_docs  = model->dvocab();
   Vocabulary* voc_words = model->wvocab();
