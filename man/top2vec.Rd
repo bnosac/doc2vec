@@ -21,7 +21,9 @@ with columns `doc_id` and `text` storing document ids and texts as character vec
 or a list with elements docs and words containing document embeddings to cluster and word embeddings for deriving topic summaries}
 
 \item{data}{optionally, a data.frame with columns `doc_id` and `text` representing documents. 
-This dataset is just stored, in order to extract the text of the most similar documents to a topic.}
+This dataset is just stored, in order to extract the text of the most similar documents to a topic.
+If it also contains a field `text_doc2vec`, this will be used to indicate the most relevant topic words
+by class-based tfidf}
 
 \item{control.umap}{a list of arguments to pass on to \code{\link[uwot]{umap}} for reducing the dimensionality of the embedding space}
 
@@ -80,6 +82,8 @@ model  <- top2vec(d2v, data = x,
 info   <- summary(model, top_n = 7)
 info$topwords
 info$topdocs
+info   <- summary(model, top_n = 7, type = "c-tfidf")
+info$topwords
 
 ## Change the model: reduce doc2vec model to 2D
 model  <- update(model, type = "umap", 

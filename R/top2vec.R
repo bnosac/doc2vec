@@ -7,6 +7,8 @@
 #' or a list with elements docs and words containing document embeddings to cluster and word embeddings for deriving topic summaries
 #' @param data optionally, a data.frame with columns `doc_id` and `text` representing documents. 
 #' This dataset is just stored, in order to extract the text of the most similar documents to a topic.
+#' If it also contains a field `text_doc2vec`, this will be used to indicate the most relevant topic words
+#' by class-based tfidf
 #' @param control.umap a list of arguments to pass on to \code{\link[uwot]{umap}} for reducing the dimensionality of the embedding space
 #' @param control.dbscan a list of arguments to pass on to \code{\link[dbscan]{hdbscan}} for clustering the reduced embedding space
 #' @param control.doc2vec optionally, a list of arguments to pass on to \code{\link[doc2vec]{paragraph2vec}} in case \code{x} is a data.frame
@@ -55,6 +57,8 @@
 #' info   <- summary(model, top_n = 7)
 #' info$topwords
 #' info$topdocs
+#' info   <- summary(model, top_n = 7, type = "c-tfidf")
+#' info$topwords
 #' 
 #' ## Change the model: reduce doc2vec model to 2D
 #' model  <- update(model, type = "umap", 
@@ -173,7 +177,9 @@ update.top2vec <- function(object, type = c("umap", "hdbscan"),
 #' @description Get summary information of a top2vec model. Namely the topic centers and the most similar words
 #' to a certain topic
 #' @param object an object of class \code{top2vec} as returned by \code{\link{top2vec}}
-#' @param type a character string with the type of summary information to extract. Currently not used
+#' @param type a character string with the type of summary information to extract for the topwords. Either 'similarity' or 'c-tfidf'.  
+#' The first extracts most similar words to the topic based on semantic similarity, the second by extracting
+#' the words with the highest tf-idf score for each topic 
 #' @param top_n integer indicating to find the \code{top_n} most similar words to a topic
 #' @param data a data.frame with columns `doc_id` and `text` representing documents. For each topic, the function extracts the most similar documents.
 #' @param embedding_words a matrix of word embeddings to limit the most similar words to. Defaults to 
@@ -185,7 +191,7 @@ update.top2vec <- function(object, type = c("umap", "hdbscan"),
 #' @examples 
 #' # For an example, look at the documentation of ?top2vec
 summary.top2vec <- function(object, 
-                            type = "default", top_n = 10, data = object$data, embedding_words = object$embedding$words, 
+                            type = c("similarity", "c-tfidf"), top_n = 10, data = object$data, embedding_words = object$embedding$words, 
                             embedding_docs = object$embedding$docs, ...){
   recode <- function(x, from, to){
     to[match(x, from)]
@@ -196,12 +202,39 @@ summary.top2vec <- function(object,
   topic_centroids <- lapply(topic_idx, FUN = function(i) colMeans(object$embedding$docs[i, , drop = FALSE]))
   topic_medoids   <- lapply(topic_idx, FUN = function(i) apply(object$embedding$docs[i, , drop = FALSE], MARGIN = 2, FUN = stats::median))
   #topic_medoids <- do.call(rbind, topic_medoids)
-  topwords <- lapply(topic_centroids, FUN = function(topic){
-    similarity <- doc2vec::paragraph2vec_similarity(y = embedding_words, x = topic, top_n = top_n)
-    data.frame(term       = similarity$term2, 
-               similarity = similarity$similarity, 
-               rank       = similarity$rank, stringsAsFactors = FALSE)
-  })
+  if(type == "similarity"){
+    topwords <- lapply(topic_centroids, FUN = function(topic){
+      similarity <- doc2vec::paragraph2vec_similarity(y = embedding_words, x = topic, top_n = top_n)
+      data.frame(term       = similarity$term2, 
+                 similarity = similarity$similarity, 
+                 rank       = similarity$rank, stringsAsFactors = FALSE)
+    })  
+  }else if(type == "c-tfidf"){
+    if(!require("udpipe")){
+      stop("c-tfidf requires the udpipe package: install.packages('udpipe')")
+    }
+    requireNamespace("udpipe")
+    stopifnot(all(rownames(object$embedding$docs) %in% object$data$doc_id))
+    ctfidf       <- object$data
+    ctfidf$topic <- udpipe::txt_recode(ctfidf$doc_id, from = rownames(object$embedding$docs), to = object$dbscan$cluster)
+    if("text_doc2vec" %in% colnames(ctfidf)){
+      dtf <- udpipe::document_term_frequencies(x = ctfidf$text_doc2vec, document = ctfidf$topic)
+    }else{
+      dtf <- udpipe::document_term_frequencies(x = ctfidf$text, document = ctfidf$topic)
+    }
+    dtf <- udpipe::document_term_frequencies_statistics(dtf)
+    topicnrs <- as.character(sort(as.integer(unique(dtf$doc_id))), decreasing = FALSE)
+    topwords <- lapply(topicnrs, FUN = function(topicnr){
+      x <- dtf[dtf$doc_id %in% topicnr, ]
+      x <- x[order(x$tf_idf, decreasing = TRUE), ]
+      x <- head(x, n = top_n)
+      data.frame(term       = x$term, 
+                 similarity = x$tf_idf, 
+                 rank       = seq_len(nrow(x)), stringsAsFactors = FALSE)
+    })
+    names(topwords) <- topicnrs
+  }
+  
   topdocs <- lapply(topic_centroids, FUN = function(topic){
     similarity <- doc2vec::paragraph2vec_similarity(y = embedding_docs, x = topic, top_n = top_n)
     data.frame(doc_id     = similarity$term2, 
@@ -223,10 +256,11 @@ print.top2vec_summary <- function(x, top_n = 3, ...){
   cat(sprintf("Topic distribution: %s", paste(round(prop.table(x$size), digits = 2), collapse = " ")), sep = "\n")
   #m <- max(nchar(unlist(mapply(seq_along(x$topwords), x$topwords, FUN = function(i, data) sprintf("Topic %s: %s", i-1, paste(head(data$term, top_n[1]), collapse = " "))))))
   for(i in seq_len(x$k)){
+    label <- names(x$topwords)[i]
     words <- head(x$topwords[[i]]$term, top_n[1])
     docs  <- head(x$topdocs[[i]]$text, top_n[2])
     
-    txt <- sprintf("Topic %s: %s", i-1, paste(words, collapse = " "))
+    txt <- sprintf("Topic %s: %s", label, paste(words, collapse = " "))
     cat(paste(rep("-", nchar(txt)), collapse = ""), sep = "\n")
     cat(txt, sep = "\n")
     cat(paste(rep("-", nchar(txt)), collapse = ""), sep = "\n")

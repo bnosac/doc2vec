@@ -31,4 +31,5 @@ Suggests:
     tokenizers.bpe,
     word2vec,
     uwot,
-    dbscan
+    dbscan,
+    udpipe

@@ -6,7 +6,7 @@
 \usage{
 \method{summary}{top2vec}(
   object,
-  type = "default",
+  type = c("similarity", "c-tfidf"),
   top_n = 10,
   data = object$data,
   embedding_words = object$embedding$words,
@@ -17,7 +17,9 @@
 \arguments{
 \item{object}{an object of class \code{top2vec} as returned by \code{\link{top2vec}}}
 
-\item{type}{a character string with the type of summary information to extract. Currently not used}
+\item{type}{a character string with the type of summary information to extract for the topwords. Either 'similarity' or 'c-tfidf'.
+The first extracts most similar words to the topic based on semantic similarity, the second by extracting
+the words with the highest tf-idf score for each topic}
 
 \item{top_n}{integer indicating to find the \code{top_n} most similar words to a topic}
 
