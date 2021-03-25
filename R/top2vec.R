@@ -27,8 +27,9 @@
 #' \item{dbscan: the result of the hdbscan clustering}
 #' \item{data: a data.frame with columns doc_id and text}
 #' }
+#' @note The topic '0' is the noise topic
 #' @examples 
-#' \dontshow{if(require(word2vec) && require(uwot) && require(dbscan))\{}
+#' \dontshow{if(require(word2vec) && require(uwot) && require(dbscan) && require(udpipe))\{}
 #' library(word2vec)
 #' library(uwot)
 #' library(dbscan)
@@ -57,6 +58,7 @@
 #' info   <- summary(model, top_n = 7)
 #' info$topwords
 #' info$topdocs
+#' library(udpipe)
 #' info   <- summary(model, top_n = 7, type = "c-tfidf")
 #' info$topwords
 #' 

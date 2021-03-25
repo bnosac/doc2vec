@@ -65,17 +65,21 @@
 #' vocab <- summary(model, type = "vocabulary",  which = "docs")
 #' vocab <- summary(model, type = "vocabulary",  which = "words")
 #' 
-#' 
-#' ## Transfer learning proof of concept
-#' emb   <- matrix(rnorm(30), nrow = 2, dimnames = list(c("en", "met")))
-#' model <- paragraph2vec(x = x, type = "PV-DM",   dim = 15,  iter = 0, embeddings = emb)
-#' 
+#' \donttest{
 #' ## Transfer learning using existing word embeddings
 #' library(word2vec)
 #' w2v   <- word2vec(x$text, dim = 50, type = "cbow", iter = 20, min_count = 5)
 #' emb   <- as.matrix(w2v)
 #' model <- paragraph2vec(x = x, dim = 50, type = "PV-DM", iter = 20, min_count = 5, 
 #'                        embeddings = emb)
+#' }
+#' 
+#' ## Transfer learning - proof of concept without learning (iter=0, set to higher to learn)
+#' emb       <- matrix(rnorm(30), nrow = 2, dimnames = list(c("en", "met")))
+#' model     <- paragraph2vec(x = x, type = "PV-DM",   dim = 15,  iter = 0, embeddings = emb)
+#' embedding <- as.matrix(model, which = "words", normalize = FALSE)
+#' embedding[c("en", "met"), ]
+#' emb
 #' \dontshow{\} # End of main if statement running only if the required packages are installed}
 paragraph2vec <- function(x,
                      type = c("PV-DBOW", "PV-DM"),

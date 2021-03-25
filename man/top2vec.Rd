@@ -52,8 +52,11 @@ an object of class \code{top2vec} which is a list with elements
 Perform text clustering by using semantic embeddings of documents and words
 to find topics of text documents which are semantically similar.
 }
+\note{
+The topic '0' is the noise topic
+}
 \examples{
-\dontshow{if(require(word2vec) && require(uwot) && require(dbscan))\{}
+\dontshow{if(require(word2vec) && require(uwot) && require(dbscan) && require(udpipe))\{}
 library(word2vec)
 library(uwot)
 library(dbscan)
@@ -82,6 +85,7 @@ model  <- top2vec(d2v, data = x,
 info   <- summary(model, top_n = 7)
 info$topwords
 info$topdocs
+library(udpipe)
 info   <- summary(model, top_n = 7, type = "c-tfidf")
 info$topwords
 
