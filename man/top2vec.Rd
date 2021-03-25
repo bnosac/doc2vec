@@ -104,10 +104,14 @@ info   <- summary(model, top_n = 7)
 data = x
 info$topwords
 info$topdocs
-\dontshow{\} # End of main if statement running only if the required packages are installed}
 }
+\dontshow{\} # End of main if statement running only if the required packages are installed}
 
-## Example with unrealistic parameter to have an example which runs < 5 seconds
+##
+## Example on a small sample 
+##  with unrealistic hyperparameter settings especially regarding dim / iter / n_epochs
+##  in order to have a basic example finishing < 5 secs
+##
 library(uwot)
 library(dbscan)
 data(be_parliament_2020, package = "doc2vec")
