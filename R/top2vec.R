@@ -88,13 +88,17 @@
 #' ##  with unrealistic hyperparameter settings especially regarding dim / iter / n_epochs
 #' ##  in order to have a basic example finishing < 5 secs
 #' ##
+#' \dontshow{if(require(word2vec) && require(uwot) && require(dbscan))\{}
 #' library(uwot)
 #' library(dbscan)
+#' library(word2vec)
 #' data(be_parliament_2020, package = "doc2vec")
 #' x        <- data.frame(doc_id = be_parliament_2020$doc_id,
 #'                        text   = be_parliament_2020$text_nl,
 #'                        stringsAsFactors = FALSE)
-#' x        <- head(x, 500)
+#' x        <- head(x, 1000)
+#' x$text   <- txt_clean_word2vec(x$text)
+#' x        <- subset(x, txt_count_words(text) < 1000)
 #' d2v      <- paragraph2vec(x, type = "PV-DBOW", dim = 10, 
 #'                           lr = 0.05, iter = 0,
 #'                           window = 5, hs = TRUE, negative = 0,
@@ -104,11 +108,12 @@
 #' model    <- top2vec(emb, 
 #'                     data = x,
 #'                     control.dbscan = list(minPts = 50), 
-#'                     control.umap = list(n_neighbors = 5, n_components = 2, 
-#'                                         n_epochs = 0, init = "spectral"), 
+#'                     control.umap = list(n_neighbors = 15, n_components = 2, 
+#'                                         init = "spectral"), 
 #'                     umap = tumap, trace = TRUE)
 #' info     <- summary(model, top_n = 7)
 #' print(info, top_n = c(5, 2))
+#' \dontshow{\} # End of main if statement running only if the required packages are installed}
 top2vec <- function(x, 
                     data = data.frame(doc_id = character(), text = character(), stringsAsFactors = FALSE), 
                     control.umap = list(n_neighbors = 15L, n_components = 5L, metric = "cosine"), 
@@ -171,6 +176,13 @@ top2vec <- function(x,
                         control = list(doc2vec = control.doc2vec, umap = control.umap, dbscan = control.dbscan)), 
                    class = "top2vec")
   out
+}
+
+#' @export
+print.top2vec <- function(x, ...){
+  cat(sprintf("Top2vec model trained on %s documents", nrow(x$embedding$docs)), sep = "\n")
+  cat(sprintf("  number of topics: %s", x$k), sep = "\n")
+  cat(sprintf("  topic distribution: %s", paste(round(prop.table(x$size), 2), collapse = " ")), sep = "\n")
 }
 
 
