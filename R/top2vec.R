@@ -26,6 +26,9 @@
 #' \item{umap: a matrix of representations of the documents of \code{x}}
 #' \item{dbscan: the result of the hdbscan clustering}
 #' \item{data: a data.frame with columns doc_id and text}
+#' \item{size: a vector of frequency statistics of topic occurrence}
+#' \item{k: the number of clusters}
+#' \item{control: a list of control arguments to doc2vec / umap / dbscan}
 #' }
 #' @note The topic '0' is the noise topic
 #' @examples 
@@ -77,8 +80,8 @@
 #' data = x
 #' info$topwords
 #' info$topdocs
-#' }
 #' \dontshow{\} # End of main if statement running only if the required packages are installed}
+#' }
 #' 
 #' ##
 #' ## Example on a small sample 
