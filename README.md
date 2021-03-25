@@ -231,6 +231,11 @@ nn <- predict(model, newdata = sentences, type = "nearest", which = "sent2doc", 
 ## Example on top2vec
 
 
+Top2vec clusters document semantically and finds most semantically relevant terms for each topic
+
+![](tools/example-viz.png)
+
+
 ```r
 library(doc2vec)
 library(word2vec)
