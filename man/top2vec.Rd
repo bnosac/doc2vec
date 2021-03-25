@@ -104,9 +104,8 @@ info   <- summary(model, top_n = 7)
 data = x
 info$topwords
 info$topdocs
-}
 \dontshow{\} # End of main if statement running only if the required packages are installed}
-
+}
 
 ## Example with unrealistic parameter to have an example which runs < 5 seconds
 library(uwot)
