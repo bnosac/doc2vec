@@ -23,7 +23,9 @@ the words with the highest tf-idf score for each topic}
 
 \item{top_n}{integer indicating to find the \code{top_n} most similar words to a topic}
 
-\item{data}{a data.frame with columns `doc_id` and `text` representing documents. For each topic, the function extracts the most similar documents.}
+\item{data}{a data.frame with columns `doc_id` and `text` representing documents. 
+For each topic, the function extracts the most similar documents. 
+And in case \code{type} is \code{'c-tfidf'} it get the words with the highest tf-idf scores for each topic.}
 
 \item{embedding_words}{a matrix of word embeddings to limit the most similar words to. Defaults to 
 the embedding of words from the \code{object}}
