@@ -5,10 +5,10 @@
 \alias{be_parliament_2020}
 \title{Corpus with Questions asked in the Belgium Federal Parliament in 2020}
 \source{
-\url{http://data.dekamer.be}, data is provided by \url{http://www.dekamer.be} in the public domain (CC0).
+data is provided by http://www.dekamer.be in the public domain (CC0).
 }
 \description{
-The dataset was extracted from \url{http://data.dekamer.be} and contains questions asked by members in the Belgium Federal parliament in 2020. \cr
+The dataset was extracted from http://data.dekamer.be and contains questions asked by members in the Belgium Federal parliament in 2020. \cr
 The Questions are in Dutch and French and contains 6059 text fragments. \cr
 
 The dataset contains the following information:
