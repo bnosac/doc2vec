@@ -56,6 +56,7 @@ to find topics of text documents which are semantically similar.
 The topic '0' is the noise topic
 }
 \examples{
+\donttest{
 \dontshow{if(require(word2vec) && require(uwot) && require(dbscan) && require(udpipe))\{}
 library(word2vec)
 library(uwot)
@@ -66,7 +67,6 @@ x      <- data.frame(doc_id = be_parliament_2020$doc_id,
                      stringsAsFactors = FALSE)
 x$text <- txt_clean_word2vec(x$text)
 x      <- subset(x, txt_count_words(text) < 1000)
-\donttest{
 d2v    <- paragraph2vec(x, type = "PV-DBOW", dim = 50, 
                         lr = 0.05, iter = 10,
                         window = 15, hs = TRUE, negative = 0,
@@ -107,14 +107,21 @@ info$topdocs
 }
 \dontshow{\} # End of main if statement running only if the required packages are installed}
 
-\dontshow{
+
+## Example with unrealistic parameter to have an example which runs < 5 seconds
+library(uwot)
+library(dbscan)
+data(be_parliament_2020, package = "doc2vec")
+x        <- data.frame(doc_id = be_parliament_2020$doc_id,
+                       text   = be_parliament_2020$text_nl,
+                       stringsAsFactors = FALSE)
+x        <- head(x, 500)
 d2v      <- paragraph2vec(x, type = "PV-DBOW", dim = 10, 
                           lr = 0.05, iter = 0,
                           window = 5, hs = TRUE, negative = 0,
                           sample = 0.00001, min_count = 5)
 emb      <- list(docs  = as.matrix(d2v, which = "docs"),
                  words = as.matrix(d2v, which = "words"))
-emb$docs <- head(emb$docs, 1000)
 model    <- top2vec(emb, 
                     data = x,
                     control.dbscan = list(minPts = 50), 
@@ -123,7 +130,6 @@ model    <- top2vec(emb,
                     umap = tumap, trace = TRUE)
 info     <- summary(model, top_n = 7)
 print(info, top_n = c(5, 2))
-}
 }
 \references{
 \url{https://arxiv.org/abs/2008.09470}
