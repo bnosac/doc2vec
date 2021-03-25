@@ -29,7 +29,7 @@ Imports: Rcpp (>= 0.11.5), stats, utils
 LinkingTo: Rcpp
 Suggests:
     tokenizers.bpe,
-    word2vec,
+    word2vec (>= 0.3.3),
     uwot,
     dbscan,
-    udpipe
+    udpipe (>= 0.8)
