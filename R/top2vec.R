@@ -181,7 +181,9 @@ update.top2vec <- function(object, type = c("umap", "hdbscan"),
 #' The first extracts most similar words to the topic based on semantic similarity, the second by extracting
 #' the words with the highest tf-idf score for each topic 
 #' @param top_n integer indicating to find the \code{top_n} most similar words to a topic
-#' @param data a data.frame with columns `doc_id` and `text` representing documents. For each topic, the function extracts the most similar documents.
+#' @param data a data.frame with columns `doc_id` and `text` representing documents. 
+#' For each topic, the function extracts the most similar documents. 
+#' And in case \code{type} is \code{'c-tfidf'} it get the words with the highest tf-idf scores for each topic.
 #' @param embedding_words a matrix of word embeddings to limit the most similar words to. Defaults to 
 #' the embedding of words from the \code{object}
 #' @param embedding_docs a matrix of document embeddings to limit the most similar documents to. Defaults to 
@@ -210,19 +212,17 @@ summary.top2vec <- function(object,
                  rank       = similarity$rank, stringsAsFactors = FALSE)
     })  
   }else if(type == "c-tfidf"){
-    if(!require("udpipe")){
+    if(!requireNamespace("udpipe")){
       stop("c-tfidf requires the udpipe package: install.packages('udpipe')")
     }
-    requireNamespace("udpipe")
-    stopifnot(all(rownames(object$embedding$docs) %in% object$data$doc_id))
-    ctfidf       <- object$data
-    ctfidf$topic <- udpipe::txt_recode(ctfidf$doc_id, from = rownames(object$embedding$docs), to = object$dbscan$cluster)
-    if("text_doc2vec" %in% colnames(ctfidf)){
-      dtf <- udpipe::document_term_frequencies(x = ctfidf$text_doc2vec, document = ctfidf$topic)
-    }else{
-      dtf <- udpipe::document_term_frequencies(x = ctfidf$text, document = ctfidf$topic)
+    if("text_doc2vec" %in% colnames(data)){
+      data$text <- data$text_doc2vec
     }
-    dtf <- udpipe::document_term_frequencies_statistics(dtf)
+    stopifnot(all(c("doc_id", "text") %in% colnames(data)))
+    stopifnot(all(rownames(object$embedding$docs) %in% data$doc_id))
+    data$topic <- recode(data$doc_id, from = rownames(object$embedding$docs), to = object$dbscan$cluster)
+    dtf        <- udpipe::document_term_frequencies(x = data$text, document = data$topic, split = "[[:space:]]+")
+    dtf        <- udpipe::document_term_frequencies_statistics(dtf)
     topicnrs <- as.character(sort(as.integer(unique(dtf$doc_id))), decreasing = FALSE)
     topwords <- lapply(topicnrs, FUN = function(topicnr){
       x <- dtf[dtf$doc_id %in% topicnr, ]
