@@ -22,7 +22,8 @@ TaggedBrownCorpus::TaggedBrownCorpus(const char * train_file, long long seek, lo
 
 TaggedBrownCorpus::~TaggedBrownCorpus()
 {
-  fclose(m_fin);
+  if(m_fin != NULL) fclose(m_fin);
+  m_fin = NULL;
 }
 
 void TaggedBrownCorpus::rewind()

@@ -2,6 +2,8 @@
 
 - Add top2vec semantic clustering algorithm
 - Allow transfer learning in paragraph2vec by passing on a pretrained set of word vectors to initialise the word embeddings with (no initialisation of the document embeddings)
+- In paragraph2vec: close opened files directly after training instead of waiting for R garbage collection to kick in
+- Added dataset 'be_parliament_2020' with questions asked by members in the Belgium Federal parliament in 2020
 
 ## CHANGES IN doc2vec VERSION 0.1.1
 

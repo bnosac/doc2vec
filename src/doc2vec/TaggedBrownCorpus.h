@@ -26,6 +26,7 @@ public:
   void rewind();
   long long getDocNum() {return m_doc_num;}
   long long tell() {return ftell(m_fin);}
+  void close() {fclose(m_fin);m_fin=NULL;}
 
 private:
   int readWord(char *word);

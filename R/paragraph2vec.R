@@ -100,9 +100,9 @@ paragraph2vec <- function(x,
   }else{
     stopifnot(is.data.frame(x) && all(c("doc_id", "text") %in% colnames(x)))
     file_train <- tempfile(pattern = "textspace_", fileext = ".txt")
-    # on.exit({
-    #   if (file.exists(file_train)) file.remove(file_train)
-    # })
+    on.exit({
+      if (file.exists(file_train)) file.remove(file_train)
+    })
     filehandle_train <- file(file_train, open = "wt", encoding = encoding)
     x <- x[!is.na(x$doc_id) & !is.na(x$text), ]
     writeLines(text = sprintf("%s %s", x$doc_id, x$text), con = filehandle_train)  

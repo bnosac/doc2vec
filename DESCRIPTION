@@ -18,7 +18,7 @@ Description: Learn vector representations of sentences, paragraphs or documents 
     areas are the topic clusters which can be represented by the corresponding topic vector which is an aggregate of the 
     document embeddings of the documents which are part of that topic cluster. In the same semantic space similar words can 
     be found which are representative of the topic.
-    More details can be found in the paper 'Top2Vec: Distributed Representations of Topics' by D. Angelov available at <doi:2008.09470>.
+    More details can be found in the paper 'Top2Vec: Distributed Representations of Topics' by D. Angelov available at <arXiv:2008.09470>. 
 URL: https://github.com/bnosac/doc2vec
 License: MIT + file LICENSE
 Encoding: UTF-8

@@ -32,7 +32,7 @@ Doc2Vec::~Doc2Vec()
   if(m_brown_corpus) delete m_brown_corpus;
   if(m_expTable) free(m_expTable);
   if(m_negtive_sample_table) free(m_negtive_sample_table);
-  for(size_t i =  0; i < m_trainModelThreads.size(); i++) delete m_trainModelThreads[i];
+  //for(size_t i =  0; i < m_trainModelThreads.size(); i++) delete m_trainModelThreads[i];
 }
 
 void Doc2Vec::initExpTable()
@@ -117,6 +117,10 @@ void Doc2Vec::train(const char * train_file,
     std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     Rcpp::Rcout << Rcpp::as<Rcpp::Datetime>(Rcpp::wrap(t)) << " Closed all threads, normalising" << "\n";     
   }
+  for(size_t i =  0; i < m_trainModelThreads.size(); i++) m_trainModelThreads[i]->m_corpus->close();
+  for(size_t i =  0; i < m_trainModelThreads.size(); i++) delete m_trainModelThreads[i];
+  m_brown_corpus->close();
+
   m_nn->norm();
   //m_wmd = new WMD(this);
   //m_wmd->train();
