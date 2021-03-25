@@ -106,6 +106,24 @@ info$topwords
 info$topdocs
 }
 \dontshow{\} # End of main if statement running only if the required packages are installed}
+
+\dontshow{
+d2v      <- paragraph2vec(x, type = "PV-DBOW", dim = 10, 
+                          lr = 0.05, iter = 0,
+                          window = 5, hs = TRUE, negative = 0,
+                          sample = 0.00001, min_count = 5)
+emb      <- list(docs  = as.matrix(d2v, which = "docs"),
+                 words = as.matrix(d2v, which = "words"))
+emb$docs <- head(emb$docs, 1000)
+model    <- top2vec(emb, 
+                    data = x,
+                    control.dbscan = list(minPts = 50), 
+                    control.umap = list(n_neighbors = 5, n_components = 2, 
+                                        n_epochs = 0, init = "spectral"), 
+                    umap = tumap, trace = TRUE)
+info     <- summary(model, top_n = 7)
+print(info, top_n = c(5, 2))
+}
 }
 \references{
 \url{https://arxiv.org/abs/2008.09470}
