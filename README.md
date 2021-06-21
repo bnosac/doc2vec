@@ -264,7 +264,8 @@ info$topwords
 ## Note
 
 The package has some hard limits namely
-    - Each documents should be smaller than 1000 words
+
+    - Each document should be smaller than 1000 words
     - Each word has a maximum length of 100 letters
 
 
