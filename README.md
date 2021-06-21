@@ -97,7 +97,7 @@ vocab     <- summary(model,   which = "docs")
 vocab     <- summary(model,   which = "words")
 ```
 
--  Get the embedding of specific documents / words or sentences
+-  Get the embedding of specific documents / words or sentences. 
 
 
 ```r
@@ -261,6 +261,11 @@ info   <- summary(model, top_n = 7)
 info$topwords
 ```
 
+## Note
+
+The package has some hard limits namely
+    - Each documents should be smaller than 100 words
+    - Each word has a maximum length of 100 letters
 
 
 ## Support in text mining

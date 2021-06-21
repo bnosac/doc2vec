@@ -372,6 +372,7 @@ predict.paragraph2vec <- function(object, newdata,
       x <- paragraph2vec_embedding_subset(object$model, x = newdata, type = which, normalize = normalize)
       Encoding(rownames(x)) <- encoding
     }else if(is.list(newdata)){
+      newdata <- lapply(newdata, FUN = function(x) substr(x, start = 1, stop = 100))
       x <- paragraph2vec_infer(object$model, newdata)
       Encoding(rownames(x)) <- encoding
     }else{
@@ -397,6 +398,7 @@ predict.paragraph2vec <- function(object, newdata,
       if(!is.list(newdata)){
         stop(sprintf("predict.paragraph2vec with type 'nearest', '%s' requires newdata to be either a list of tokens", which))
       }
+      newdata <- lapply(newdata, FUN = function(x) substr(x, start = 1, stop = 100))
       x <- paragraph2vec_nearest_sentence(object$model, newdata, top_n = top_n)
       x <- lapply(x, FUN = function(data){
         Encoding(data$term1) <- encoding

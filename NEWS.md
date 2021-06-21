@@ -1,3 +1,7 @@
+## CHANGES IN doc2vec VERSION 0.2.1
+
+- Make sure words are only 100 characters when getting embeddings of documents (issue #20)
+
 ## CHANGES IN doc2vec VERSION 0.2.0
 
 - Add top2vec semantic clustering algorithm
