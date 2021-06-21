@@ -70,14 +70,12 @@
 #'                  n_neighbors = 100, n_components = 2, metric = "cosine", umap = tumap, 
 #'                  trace = TRUE)
 #' info   <- summary(model, top_n = 7)
-#' data = x
 #' info$topwords
 #' info$topdocs
 #' 
 #' ## Change the model: have minimum 200 points for the core elements in the hdbscan density
 #' model  <- update(model, type = "hdbscan", minPts = 200, trace = TRUE)
 #' info   <- summary(model, top_n = 7)
-#' data = x
 #' info$topwords
 #' info$topdocs
 #' \dontshow{\} # End of main if statement running only if the required packages are installed}
