@@ -6,7 +6,8 @@
 #' where an additional vector for every paragraph is added directly in the training.
 #' @param x a data.frame with columns doc_id and text or the path to the file on disk containing training data.\cr
 #' Note that the text column should be of type character, should contain less than 1000 words where space or tab is 
-#' used as a word separator and that the text should not contain newline characters as these are considered document delimiters.
+#' used as a word separator and that the text should not contain newline characters as these are considered document delimiters.\cr
+#' The doc_id should not contain spaces.
 #' @param type character string with the type of algorithm to use, either one of
 #' \itemize{
 #' \item{'PV-DM': Distributed Memory paragraph vectors}
@@ -99,6 +100,17 @@ paragraph2vec <- function(x,
     file_train <- x
   }else{
     stopifnot(is.data.frame(x) && all(c("doc_id", "text") %in% colnames(x)))
+    nwords      <- txt_count_words(x$text, pattern = "[ \t]")
+    idx         <- which(nwords >= 1000)
+    if(length(idx) > 0){
+      message(sprintf("Note: there are texts which are longer than 1000 words, for these we will take only the first 1000 words, example doc_id: %s", x$doc_id[sample(idx, size = 1)]))
+      x$text[idx] <- sapply(strsplit(x$text[idx], split = "[ \t]"), FUN = function(x) paste(head(x, n = 1000), collapse = " "))    
+    }
+    idx <- grepl(x$doc_id, pattern = "[ \t]")
+    idx <- which(idx)
+    if(length(idx) > 0){
+      warning(sprintf("There are doc_id's containing spaces, make sure your doc_id has no spaces otherwise the doc_id will be everything before the space and the remainder will be a word which is considered part of the document, e.g look at doc_id: %s", x$doc_id[sample(idx, size = 1)]))
+    }
     file_train <- tempfile(pattern = "textspace_", fileext = ".txt")
     on.exit({
       if (file.exists(file_train)) file.remove(file_train)

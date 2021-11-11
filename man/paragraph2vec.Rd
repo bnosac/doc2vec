@@ -24,7 +24,8 @@ paragraph2vec(
 \arguments{
 \item{x}{a data.frame with columns doc_id and text or the path to the file on disk containing training data.\cr
 Note that the text column should be of type character, should contain less than 1000 words where space or tab is 
-used as a word separator and that the text should not contain newline characters as these are considered document delimiters.}
+used as a word separator and that the text should not contain newline characters as these are considered document delimiters.\cr
+The doc_id should not contain spaces.}
 
 \item{type}{character string with the type of algorithm to use, either one of
 \itemize{
