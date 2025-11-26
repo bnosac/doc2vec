@@ -1,3 +1,7 @@
+## CHANGES IN doc2vec VERSION 0.2.2
+
+- Fix DOI in DESCRIPTION
+
 ## CHANGES IN doc2vec VERSION 0.2.1
 
 - Make sure words are only 100 characters when getting embeddings of documents (issue #20)
