@@ -9,7 +9,7 @@ Next to that, it also allows to build a `top2vec` model allowing to cluster docu
     - to train paragraph embeddings (also known as document embeddings) on character data or data in a text file
     - use the embeddings to find similar documents, paragraphs, sentences or words
     - cluster document embeddings using top2vec
-- Note. For getting word vectors in R: look at package https://github.com/bnosac/word2vec, details [here](https://www.bnosac.be/index.php/blog/100-word2vec-in-r), for Starspace embeddings: look at package https://github.com/bnosac/ruimtehol, details [here](https://CRAN.R-project.org/package=ruimtehol/vignettes/ground-control-to-ruimtehol.pdf)
+- Note. For getting word vectors in R: look at package https://github.com/bnosac/word2vec, details [here](https://www.bnosac.be/index.php/blog/100-word2vec-in-r), for Starspace embeddings: look at package https://github.com/bnosac/ruimtehol
 
 ## Installation
 
