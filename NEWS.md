@@ -1,6 +1,7 @@
 ## CHANGES IN doc2vec VERSION 0.2.2
 
 - Fix DOI in DESCRIPTION
+- Remove C++11 from Makevars
 
 ## CHANGES IN doc2vec VERSION 0.2.1
 
